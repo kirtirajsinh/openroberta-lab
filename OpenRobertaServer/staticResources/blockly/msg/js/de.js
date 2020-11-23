@@ -1444,6 +1444,7 @@ Blockly.Msg.SENSOR_LIGHTVEML_UVLIGHT_GETSAMPLE_TOOLTIP = "Gibt den Wert für den
 Blockly.Msg.SENSOR_LIGHT_LIGHT_GETSAMPLE_TOOLTIP_EDISON = "Gibt den aktuellen Wert des Lichtsensors zurück";
 Blockly.Msg.SENSOR_LIGHT_LINETRACKER = "Linienfolger";
 Blockly.Msg.SENSOR_LPS22HB = "LPS22HB";  // untranslated
+Blockly.Msg.SENSOR_LSM9DS1 = "LSM9DS1";  // untranslated
 Blockly.Msg.SENSOR_MIC = "Mikrofon";
 Blockly.Msg.SENSOR_MOISTURE = "Feuchtigkeitsensor";
 Blockly.Msg.SENSOR_MOISTURE_GETSAMPLE_TOOLTIP = "Gibt den aktuellen Wert des Feuchtigkeitsensors in Prozent zurück.";

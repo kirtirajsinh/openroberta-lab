@@ -1444,6 +1444,7 @@ Blockly.Msg.SENSOR_LIGHTVEML_UVLIGHT_GETSAMPLE_TOOLTIP = "Reads the current valu
 Blockly.Msg.SENSOR_LIGHT_LIGHT_GETSAMPLE_TOOLTIP_EDISON = "Gets the current reading of the light sensor";  // untranslated
 Blockly.Msg.SENSOR_LIGHT_LINETRACKER = "line tracker";  // untranslated
 Blockly.Msg.SENSOR_LPS22HB = "LPS22HB";  // untranslated
+Blockly.Msg.SENSOR_LSM9DS1 = "LSM9DS1";  // untranslated
 Blockly.Msg.SENSOR_MIC = "Microfonn";
 Blockly.Msg.SENSOR_MOISTURE = "Senzor de umiditate";
 Blockly.Msg.SENSOR_MOISTURE_GETSAMPLE_TOOLTIP = "Ia datele de la senzorul de umidiate";
