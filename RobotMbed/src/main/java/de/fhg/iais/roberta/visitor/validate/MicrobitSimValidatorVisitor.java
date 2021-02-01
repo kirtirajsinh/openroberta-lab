@@ -42,7 +42,6 @@ import de.fhg.iais.roberta.syntax.sensor.generic.PinTouchSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.TemperatureSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.UltrasonicSensor;
 import de.fhg.iais.roberta.syntax.sensor.mbed.RadioRssiSensor;
-import de.fhg.iais.roberta.typecheck.NepoInfo;
 import de.fhg.iais.roberta.visitor.hardware.IMbedVisitor;
 
 public final class MicrobitSimValidatorVisitor extends AbstractSimValidatorVisitor implements IMbedVisitor<Void> {
@@ -54,7 +53,7 @@ public final class MicrobitSimValidatorVisitor extends AbstractSimValidatorVisit
     @Override
     public Void visitMotorOnAction(MotorOnAction<Void> motorOnAction) {
         super.visitMotorOnAction(motorOnAction);
-        motorOnAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(motorOnAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
@@ -133,13 +132,13 @@ public final class MicrobitSimValidatorVisitor extends AbstractSimValidatorVisit
     @Override
     public Void visitRadioSendAction(RadioSendAction<Void> radioSendAction) {
         radioSendAction.getMsg().accept(this);
-        radioSendAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(radioSendAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitRadioReceiveAction(RadioReceiveAction<Void> radioReceiveAction) {
-        radioReceiveAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(radioReceiveAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
@@ -160,7 +159,7 @@ public final class MicrobitSimValidatorVisitor extends AbstractSimValidatorVisit
     @Override
     public Void visitPinGetValueSensor(PinGetValueSensor<Void> pinValueSensor) {
         if ( pinValueSensor.getMode().equals(SC.PULSEHIGH) || pinValueSensor.getMode().equals(SC.PULSELOW) || pinValueSensor.getMode().equals(SC.PULSE) ) {
-            pinValueSensor.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+            addWarningToPhrase(pinValueSensor, "SIM_BLOCK_NOT_SUPPORTED");
         }
         return null;
     }
@@ -200,82 +199,82 @@ public final class MicrobitSimValidatorVisitor extends AbstractSimValidatorVisit
     @Override
     public Void visitRadioSetChannelAction(RadioSetChannelAction<Void> radioSetChannelAction) {
         radioSetChannelAction.getChannel().accept(this);
-        radioSetChannelAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(radioSetChannelAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitRadioRssiSensor(RadioRssiSensor<Void> radioRssiSensor) {
-        radioRssiSensor.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(radioRssiSensor, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitAccelerometer(AccelerometerSensor<Void> accelerometerSensor) {
-        accelerometerSensor.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(accelerometerSensor, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitFourDigitDisplayShowAction(FourDigitDisplayShowAction<Void> fourDigitDisplayShowAction) {
-        fourDigitDisplayShowAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(fourDigitDisplayShowAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitFourDigitDisplayClearAction(FourDigitDisplayClearAction<Void> fourDigitDisplayClearAction) {
-        fourDigitDisplayClearAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(fourDigitDisplayClearAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitLedBarSetAction(LedBarSetAction<Void> ledBarSetAction) {
-        ledBarSetAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(ledBarSetAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitSwitchLedMatrixAction(SwitchLedMatrixAction<Void> switchLedMatrixAction) {
-        switchLedMatrixAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(switchLedMatrixAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitPinSetPullAction(PinSetPullAction<Void> pinSetPullAction) {
-        pinSetPullAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(pinSetPullAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitBothMotorsOnAction(BothMotorsOnAction<Void> bothMotorsOnAction) {
-        bothMotorsOnAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(bothMotorsOnAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitBothMotorsStopAction(BothMotorsStopAction<Void> bothMotorsStopAction) {
-        bothMotorsStopAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(bothMotorsStopAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitHumiditySensor(HumiditySensor<Void> humiditySensor) {
         super.visitHumiditySensor(humiditySensor);
-        humiditySensor.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(humiditySensor, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitInfraredSensor(InfraredSensor<Void> infraredSensor) {
         super.visitInfraredSensor(infraredSensor);
-        infraredSensor.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(infraredSensor, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitUltrasonicSensor(UltrasonicSensor<Void> ultrasonicSensor) {
         super.visitUltrasonicSensor(ultrasonicSensor);
-        ultrasonicSensor.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(ultrasonicSensor, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 

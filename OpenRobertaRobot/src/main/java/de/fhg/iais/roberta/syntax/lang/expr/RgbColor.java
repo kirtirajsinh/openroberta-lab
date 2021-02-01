@@ -30,7 +30,7 @@ public class RgbColor<V> extends Expr<V> {
     private final Expr<V> B;
     private final Expr<V> A;
 
-    private RgbColor(Expr<V> R, Expr<V> G, Expr<V> B, Expr<V> A, BlocklyBlockProperties properties, BlocklyComment comment) {
+    private RgbColor(BlocklyBlockProperties properties, BlocklyComment comment, Expr<V> R, Expr<V> G, Expr<V> B, Expr<V> A) {
         super(BlockTypeContainer.getByName("RGB_COLOR"), properties, comment);
         this.R = R;
         this.G = G;
@@ -47,8 +47,8 @@ public class RgbColor<V> extends Expr<V> {
      * @param comment added from the user,
      * @return read only object of class {@link RgbColor}
      */
-    public static <V> RgbColor<V> make(Expr<V> R, Expr<V> G, Expr<V> B, Expr<V> A, BlocklyBlockProperties properties, BlocklyComment comment) {
-        return new RgbColor<V>(R, G, B, A, properties, comment);
+    public static <V> RgbColor<V> make(BlocklyBlockProperties properties, BlocklyComment comment, Expr<V> R, Expr<V> G, Expr<V> B, Expr<V> A) {
+        return new RgbColor<>(properties, comment, R, G, B, A);
     }
 
     public Expr<V> getR() {
@@ -110,12 +110,12 @@ public class RgbColor<V> extends Expr<V> {
         Phrase<V> alpha = helper.extractValue(values, new ExprParam(BlocklyConstants.ALPHA, BlocklyType.NUMBER_INT));
         return RgbColor
             .make(
-                helper.convertPhraseToExpr(red),
-                helper.convertPhraseToExpr(green),
-                helper.convertPhraseToExpr(blue),
-                helper.convertPhraseToExpr(alpha),
                 Jaxb2Ast.extractBlockProperties(block),
-                Jaxb2Ast.extractComment(block));
+                Jaxb2Ast.extractComment(block),
+                AbstractJaxb2Ast.convertPhraseToExpr(red),
+                AbstractJaxb2Ast.convertPhraseToExpr(green),
+                AbstractJaxb2Ast.convertPhraseToExpr(blue),
+                AbstractJaxb2Ast.convertPhraseToExpr(alpha));
     }
 
     @Override

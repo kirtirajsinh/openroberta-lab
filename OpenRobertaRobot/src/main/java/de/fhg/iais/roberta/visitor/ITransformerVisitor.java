@@ -345,12 +345,12 @@ public interface ITransformerVisitor<V> extends ISensorVisitor<Phrase<V>>, IAllA
     default Phrase<V> visitRgbColor(RgbColor<Phrase<V>> rgbColor) {
         return RgbColor
             .make(
+                rgbColor.getProperty(),
+                rgbColor.getComment(),
                 (Expr<V>) rgbColor.getR().modify(this),
                 (Expr<V>) rgbColor.getG().modify(this),
                 (Expr<V>) rgbColor.getB().modify(this),
-                (Expr<V>) rgbColor.getA().modify(this),
-                rgbColor.getProperty(),
-                rgbColor.getComment());
+                (Expr<V>) rgbColor.getA().modify(this));
     }
 
     @Override

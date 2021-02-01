@@ -52,7 +52,6 @@ import de.fhg.iais.roberta.syntax.sensor.generic.PinTouchSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.TemperatureSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.UltrasonicSensor;
 import de.fhg.iais.roberta.syntax.sensor.mbed.RadioRssiSensor;
-import de.fhg.iais.roberta.typecheck.NepoInfo;
 import de.fhg.iais.roberta.visitor.hardware.IMbedVisitor;
 
 public final class CalliopeSimValidatorVisitor extends AbstractSimValidatorVisitor implements IMbedVisitor<Void> {
@@ -109,13 +108,13 @@ public final class CalliopeSimValidatorVisitor extends AbstractSimValidatorVisit
 
     @Override
     public Void visitUltrasonicSensor(UltrasonicSensor<Void> ultrasonicSensor) {
-        ultrasonicSensor.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(ultrasonicSensor, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitInfraredSensor(InfraredSensor<Void> infraredSensor) {
-        infraredSensor.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(infraredSensor, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
@@ -128,7 +127,7 @@ public final class CalliopeSimValidatorVisitor extends AbstractSimValidatorVisit
     public Void visitLedOnAction(LedOnAction<Void> ledOnAction) {
         ConfigurationComponent usedActor = this.robotConfiguration.optConfigurationComponent(ledOnAction.getPort());
         if ( usedActor == null ) {
-            ledOnAction.addInfo(NepoInfo.warning("CONFIGURATION_ERROR_ACTOR_MISSING"));
+            addWarningToPhrase(ledOnAction, "CONFIGURATION_ERROR_ACTOR_MISSING");
         }
         ledOnAction.getLedColor().accept(this);
         return null;
@@ -138,27 +137,27 @@ public final class CalliopeSimValidatorVisitor extends AbstractSimValidatorVisit
     public Void visitLightStatusAction(LightStatusAction<Void> lightStatusAction) {
         ConfigurationComponent usedActor = this.robotConfiguration.optConfigurationComponent(lightStatusAction.getPort());
         if ( usedActor == null ) {
-            lightStatusAction.addInfo(NepoInfo.warning("CONFIGURATION_ERROR_ACTOR_MISSING"));
+            addWarningToPhrase(lightStatusAction, "CONFIGURATION_ERROR_ACTOR_MISSING");
         }
         return null;
     }
 
     @Override
     public Void visitLightAction(LightAction<Void> lightAction) {
-        lightAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(lightAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitRadioSendAction(RadioSendAction<Void> radioSendAction) {
         radioSendAction.getMsg().accept(this);
-        radioSendAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(radioSendAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitRadioReceiveAction(RadioReceiveAction<Void> radioReceiveAction) {
-        radioReceiveAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(radioReceiveAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
@@ -180,14 +179,14 @@ public final class CalliopeSimValidatorVisitor extends AbstractSimValidatorVisit
     public Void visitPinGetValueSensor(PinGetValueSensor<Void> pinValueSensor) {
         checkSensorPort(pinValueSensor);
         if ( pinValueSensor.getMode().equals(SC.PULSEHIGH) || pinValueSensor.getMode().equals(SC.PULSELOW) || pinValueSensor.getMode().equals(SC.PULSE) ) {
-            pinValueSensor.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+            addWarningToPhrase(pinValueSensor, "SIM_BLOCK_NOT_SUPPORTED");
         }
         return null;
     }
 
     @Override
     public Void visitColorSensor(ColorSensor<Void> colorSensor) {
-        colorSensor.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(colorSensor, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
@@ -195,7 +194,7 @@ public final class CalliopeSimValidatorVisitor extends AbstractSimValidatorVisit
     public Void visitPinWriteValueAction(PinWriteValueAction<Void> pinWriteValueAction) {
         ConfigurationComponent usedActor = this.robotConfiguration.optConfigurationComponent(pinWriteValueAction.getPort());
         if ( usedActor == null ) {
-            pinWriteValueAction.addInfo(NepoInfo.warning("CONFIGURATION_ERROR_ACTOR_MISSING"));
+            addWarningToPhrase(pinWriteValueAction, "CONFIGURATION_ERROR_ACTOR_MISSING");
         }
         pinWriteValueAction.getValue().accept(this);
         return null;
@@ -205,7 +204,7 @@ public final class CalliopeSimValidatorVisitor extends AbstractSimValidatorVisit
     public Void visitToneAction(ToneAction<Void> toneAction) {
         ConfigurationComponent usedActor = this.robotConfiguration.optConfigurationComponentByType("BUZZER");
         if ( usedActor == null ) {
-            toneAction.addInfo(NepoInfo.warning("CONFIGURATION_ERROR_ACTOR_MISSING"));
+            addWarningToPhrase(toneAction, "CONFIGURATION_ERROR_ACTOR_MISSING");
         }
         return super.visitToneAction(toneAction);
     }
@@ -214,7 +213,7 @@ public final class CalliopeSimValidatorVisitor extends AbstractSimValidatorVisit
     public Void visitPlayNoteAction(PlayNoteAction<Void> playNoteAction) {
         ConfigurationComponent usedActor = this.robotConfiguration.optConfigurationComponentByType("BUZZER");
         if ( usedActor == null ) {
-            playNoteAction.addInfo(NepoInfo.warning("CONFIGURATION_ERROR_ACTOR_MISSING"));
+            addWarningToPhrase(playNoteAction, "CONFIGURATION_ERROR_ACTOR_MISSING");
         }
         return null;
     }
@@ -248,19 +247,19 @@ public final class CalliopeSimValidatorVisitor extends AbstractSimValidatorVisit
     @Override
     public Void visitRadioSetChannelAction(RadioSetChannelAction<Void> radioSetChannelAction) {
         radioSetChannelAction.getChannel().accept(this);
-        radioSetChannelAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(radioSetChannelAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitRadioRssiSensor(RadioRssiSensor<Void> radioRssiSensor) {
-        radioRssiSensor.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(radioRssiSensor, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitAccelerometer(AccelerometerSensor<Void> accelerometerSensor) {
-        accelerometerSensor.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(accelerometerSensor, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
@@ -272,7 +271,7 @@ public final class CalliopeSimValidatorVisitor extends AbstractSimValidatorVisit
 
     @Override
     public Void visitGyroSensor(GyroSensor<Void> gyroSensor) {
-        gyroSensor.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(gyroSensor, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
@@ -286,7 +285,7 @@ public final class CalliopeSimValidatorVisitor extends AbstractSimValidatorVisit
     public Void visitMotorOnAction(MotorOnAction<Void> motorOnAction) {
         ConfigurationComponent usedActor = this.robotConfiguration.optConfigurationComponent(motorOnAction.getUserDefinedPort());
         if ( usedActor == null ) {
-            motorOnAction.addInfo(NepoInfo.warning("CONFIGURATION_ERROR_ACTOR_MISSING"));
+            addWarningToPhrase(motorOnAction, "CONFIGURATION_ERROR_ACTOR_MISSING");
         }
         motorOnAction.getParam().getSpeed().accept(this);
         return null;
@@ -296,32 +295,32 @@ public final class CalliopeSimValidatorVisitor extends AbstractSimValidatorVisit
     public Void visitMotorStopAction(MotorStopAction<Void> motorStopAction) {
         ConfigurationComponent usedActor = this.robotConfiguration.optConfigurationComponent(motorStopAction.getUserDefinedPort());
         if ( usedActor == null ) {
-            motorStopAction.addInfo(NepoInfo.warning("CONFIGURATION_ERROR_ACTOR_MISSING"));
+            addWarningToPhrase(motorStopAction, "CONFIGURATION_ERROR_ACTOR_MISSING");
         }
         return null;
     }
 
     @Override
     public Void visitFourDigitDisplayShowAction(FourDigitDisplayShowAction<Void> fourDigitDisplayShowAction) {
-        fourDigitDisplayShowAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(fourDigitDisplayShowAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitFourDigitDisplayClearAction(FourDigitDisplayClearAction<Void> fourDigitDisplayClearAction) {
-        fourDigitDisplayClearAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(fourDigitDisplayClearAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitLedBarSetAction(LedBarSetAction<Void> ledBarSetAction) {
-        ledBarSetAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(ledBarSetAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitPinSetPullAction(PinSetPullAction<Void> pinSetPull) {
-        pinSetPull.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(pinSetPull, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
@@ -329,7 +328,7 @@ public final class CalliopeSimValidatorVisitor extends AbstractSimValidatorVisit
     public Void visitBothMotorsOnAction(BothMotorsOnAction<Void> bothMotorsOnAction) {
         ConfigurationComponent usedActor = this.robotConfiguration.optConfigurationComponent(bothMotorsOnAction.getPortA());
         if ( usedActor == null ) {
-            bothMotorsOnAction.addInfo(NepoInfo.warning("CONFIGURATION_ERROR_ACTOR_MISSING"));
+            addWarningToPhrase(bothMotorsOnAction, "CONFIGURATION_ERROR_ACTOR_MISSING");
         }
         bothMotorsOnAction.getSpeedA().accept(this);
         bothMotorsOnAction.getSpeedB().accept(this);
@@ -343,31 +342,31 @@ public final class CalliopeSimValidatorVisitor extends AbstractSimValidatorVisit
 
     @Override
     public Void visitHumiditySensor(HumiditySensor<Void> humiditySensor) {
-        humiditySensor.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(humiditySensor, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitSwitchLedMatrixAction(SwitchLedMatrixAction<Void> switchLedMatrixAction) {
-        switchLedMatrixAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(switchLedMatrixAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitServoSetAction(ServoSetAction<Void> servoSetAction) {
-        servoSetAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(servoSetAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitMotionKitSingleSetAction(MotionKitSingleSetAction<Void> motionKitSingleSetAction) {
-        motionKitSingleSetAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(motionKitSingleSetAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitMotionKitDualSetAction(MotionKitDualSetAction<Void> motionKitDualSetAction) {
-        motionKitDualSetAction.addInfo(NepoInfo.warning("SIM_BLOCK_NOT_SUPPORTED"));
+        addWarningToPhrase(motionKitDualSetAction, "SIM_BLOCK_NOT_SUPPORTED");
         return null;
     }
 }

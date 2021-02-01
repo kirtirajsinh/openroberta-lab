@@ -457,18 +457,12 @@ public class ExprlyVisitor<V> extends ExprlyBaseVisitor<Expr<V>> {
         }
         if ( f.equals("getRGB") ) {
             if ( args.size() == 3 ) {
-                return RgbColor.make(args.get(0), args.get(1), args.get(2), EmptyExpr.make(BlocklyType.NUMBER_INT), BCMAKE, null);
+                return RgbColor.make(BCMAKE, null, args.get(0), args.get(1), args.get(2), EmptyExpr.make(BlocklyType.NUMBER_INT));
             } else if ( args.size() == 4 ) {
-                return RgbColor.make(args.get(0), args.get(1), args.get(2), args.get(3), BCMAKE, null);
+                return RgbColor.make(BCMAKE, null, args.get(0), args.get(1), args.get(2), args.get(3));
             } else {
-                return RgbColor
-                    .make(
-                        EmptyExpr.make(BlocklyType.NUMBER_INT),
-                        EmptyExpr.make(BlocklyType.NUMBER_INT),
-                        EmptyExpr.make(BlocklyType.NUMBER_INT),
-                        EmptyExpr.make(BlocklyType.NUMBER_INT),
-                        BCMAKE,
-                        null);
+                Expr<V> empty = EmptyExpr.make(BlocklyType.NUMBER_INT);
+                return RgbColor.make(BCMAKE, null, empty, empty, empty, empty);
             }
         }
         try {

@@ -6,20 +6,19 @@ import de.fhg.iais.roberta.syntax.action.sound.ToneAction;
 import de.fhg.iais.roberta.syntax.action.sound.VolumeAction;
 import de.fhg.iais.roberta.visitor.hardware.IHardwareVisitor;
 
-public interface ISoundVisitor<V> extends IHardwareVisitor<V>, ISimpleSoundVisitor<V> {
+public interface ISimpleSoundVisitor<V> extends IHardwareVisitor<V> {
 
     /**
-     * visit a {@link VolumeAction}.
+     * visit a {@link ToneAction}.
      *
-     * @param volumeAction to be visited
+     * @param toneAction to be visited
      */
-    V visitVolumeAction(VolumeAction<V> volumeAction);
+    V visitToneAction(ToneAction<V> toneAction);
 
     /**
-     * visit a {@link PlayFileAction}.
+     * visit a {@link PlayNoteAction}.
      *
-     * @param playFileAction
+     * @param playNoteAction
      */
-    V visitPlayFileAction(PlayFileAction<V> playFileAction);
-
+    V visitPlayNoteAction(PlayNoteAction<V> playNoteAction);
 }

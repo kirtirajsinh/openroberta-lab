@@ -8,42 +8,34 @@ import de.fhg.iais.roberta.syntax.action.mbed.RadioReceiveAction;
 import de.fhg.iais.roberta.syntax.action.mbed.RadioSendAction;
 import de.fhg.iais.roberta.syntax.action.mbed.RadioSetChannelAction;
 import de.fhg.iais.roberta.syntax.sensor.mbed.RadioRssiSensor;
-import de.fhg.iais.roberta.typecheck.NepoInfo;
 
-public final class Calliope2017ValidatorVisitor extends CalliopeValidatorVisitor {
+public final class Calliope2017ValidatorAndCollectorVisitor extends CalliopeValidatorAndCollectorVisitor {
 
-    public Calliope2017ValidatorVisitor(ConfigurationAst brickConfiguration, ClassToInstanceMap<IProjectBean.IBuilder<?>> beanBuilders) {
+    public Calliope2017ValidatorAndCollectorVisitor(ConfigurationAst brickConfiguration, ClassToInstanceMap<IProjectBean.IBuilder<?>> beanBuilders) {
         super(brickConfiguration, beanBuilders);
     }
 
     @Override
     public Void visitRadioSendAction(RadioSendAction<Void> radioSendAction) {
-        radioSendAction.getMsg().accept(this);
-        radioSendAction.addInfo(NepoInfo.error("BLOCK_NOT_SUPPORTED"));
-        this.errorCount++;
-        return null;
+        addErrorToPhrase(radioSendAction, "BLOCK_NOT_SUPPORTED");
+        return super.visitRadioSendAction(radioSendAction);
     }
 
     @Override
     public Void visitRadioReceiveAction(RadioReceiveAction<Void> radioReceiveAction) {
-        radioReceiveAction.addInfo(NepoInfo.error("BLOCK_NOT_SUPPORTED"));
-        this.errorCount++;
+        addErrorToPhrase(radioReceiveAction, "BLOCK_NOT_SUPPORTED");
         return null;
     }
 
     @Override
     public Void visitRadioSetChannelAction(RadioSetChannelAction<Void> radioSetChannelAction) {
-        radioSetChannelAction.getChannel().accept(this);
-        radioSetChannelAction.addInfo(NepoInfo.error("BLOCK_NOT_SUPPORTED"));
-        this.errorCount++;
-        return null;
+        addErrorToPhrase(radioSetChannelAction, "BLOCK_NOT_SUPPORTED");
+        return super.visitRadioSetChannelAction(radioSetChannelAction);
     }
 
     @Override
     public Void visitRadioRssiSensor(RadioRssiSensor<Void> radioRssiSensor) {
-        radioRssiSensor.addInfo(NepoInfo.error("BLOCK_NOT_SUPPORTED"));
-        this.errorCount++;
-        return null;
+        addErrorToPhrase(radioRssiSensor, "BLOCK_NOT_SUPPORTED");
+        return super.visitRadioRssiSensor(radioRssiSensor);
     }
-
 }

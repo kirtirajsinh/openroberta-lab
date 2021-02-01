@@ -60,7 +60,8 @@ public final class UnitTestHelper {
         ConfigurationAst configuration,
         String expectedSource,
         String programXmlFilename,
-        IWorker... workers) {
+        IWorker... workers) //
+    {
         String programXml = Util.readResourceContent(programXmlFilename);
         Project.Builder builder = setupWithProgramXML(factory, programXml);
         builder.setConfigurationAst(configuration);

@@ -1,68 +1,29 @@
 package de.fhg.iais.roberta.visitor.validate;
 
-import java.util.HashMap;
-
 import com.google.common.collect.ClassToInstanceMap;
-
 import de.fhg.iais.roberta.bean.IProjectBean;
 import de.fhg.iais.roberta.bean.UsedHardwareBean;
+import de.fhg.iais.roberta.blockly.generated.Block;
+import de.fhg.iais.roberta.syntax.Phrase;
 import de.fhg.iais.roberta.syntax.lang.blocksequence.MainTask;
-import de.fhg.iais.roberta.syntax.lang.expr.Binary;
-import de.fhg.iais.roberta.syntax.lang.expr.BoolConst;
-import de.fhg.iais.roberta.syntax.lang.expr.ColorConst;
-import de.fhg.iais.roberta.syntax.lang.expr.ConnectConst;
-import de.fhg.iais.roberta.syntax.lang.expr.EmptyExpr;
-import de.fhg.iais.roberta.syntax.lang.expr.EmptyList;
-import de.fhg.iais.roberta.syntax.lang.expr.Expr;
-import de.fhg.iais.roberta.syntax.lang.expr.ExprList;
-import de.fhg.iais.roberta.syntax.lang.expr.ListCreate;
-import de.fhg.iais.roberta.syntax.lang.expr.MathConst;
-import de.fhg.iais.roberta.syntax.lang.expr.NullConst;
-import de.fhg.iais.roberta.syntax.lang.expr.NumConst;
-import de.fhg.iais.roberta.syntax.lang.expr.RgbColor;
-import de.fhg.iais.roberta.syntax.lang.expr.StringConst;
-import de.fhg.iais.roberta.syntax.lang.expr.Unary;
-import de.fhg.iais.roberta.syntax.lang.expr.Var;
-import de.fhg.iais.roberta.syntax.lang.expr.VarDeclaration;
-import de.fhg.iais.roberta.syntax.lang.functions.GetSubFunct;
-import de.fhg.iais.roberta.syntax.lang.functions.IndexOfFunct;
-import de.fhg.iais.roberta.syntax.lang.functions.LengthOfIsEmptyFunct;
-import de.fhg.iais.roberta.syntax.lang.functions.ListGetIndex;
-import de.fhg.iais.roberta.syntax.lang.functions.ListRepeat;
-import de.fhg.iais.roberta.syntax.lang.functions.ListSetIndex;
-import de.fhg.iais.roberta.syntax.lang.functions.MathCastCharFunct;
-import de.fhg.iais.roberta.syntax.lang.functions.MathCastStringFunct;
-import de.fhg.iais.roberta.syntax.lang.functions.MathConstrainFunct;
-import de.fhg.iais.roberta.syntax.lang.functions.MathNumPropFunct;
-import de.fhg.iais.roberta.syntax.lang.functions.MathOnListFunct;
-import de.fhg.iais.roberta.syntax.lang.functions.MathPowerFunct;
-import de.fhg.iais.roberta.syntax.lang.functions.MathRandomFloatFunct;
-import de.fhg.iais.roberta.syntax.lang.functions.MathRandomIntFunct;
-import de.fhg.iais.roberta.syntax.lang.functions.MathSingleFunct;
-import de.fhg.iais.roberta.syntax.lang.functions.TextCharCastNumberFunct;
-import de.fhg.iais.roberta.syntax.lang.functions.TextJoinFunct;
-import de.fhg.iais.roberta.syntax.lang.functions.TextPrintFunct;
-import de.fhg.iais.roberta.syntax.lang.functions.TextStringCastNumberFunct;
+import de.fhg.iais.roberta.syntax.lang.expr.*;
+import de.fhg.iais.roberta.syntax.lang.functions.*;
 import de.fhg.iais.roberta.syntax.lang.methods.MethodCall;
 import de.fhg.iais.roberta.syntax.lang.methods.MethodIfReturn;
 import de.fhg.iais.roberta.syntax.lang.methods.MethodReturn;
 import de.fhg.iais.roberta.syntax.lang.methods.MethodVoid;
-import de.fhg.iais.roberta.syntax.lang.stmt.AssertStmt;
-import de.fhg.iais.roberta.syntax.lang.stmt.AssignStmt;
-import de.fhg.iais.roberta.syntax.lang.stmt.DebugAction;
-import de.fhg.iais.roberta.syntax.lang.stmt.IfStmt;
-import de.fhg.iais.roberta.syntax.lang.stmt.MethodStmt;
-import de.fhg.iais.roberta.syntax.lang.stmt.NNStepStmt;
-import de.fhg.iais.roberta.syntax.lang.stmt.RepeatStmt;
-import de.fhg.iais.roberta.syntax.lang.stmt.StmtFlowCon;
-import de.fhg.iais.roberta.syntax.lang.stmt.StmtList;
-import de.fhg.iais.roberta.syntax.lang.stmt.StmtTextComment;
-import de.fhg.iais.roberta.syntax.lang.stmt.WaitStmt;
-import de.fhg.iais.roberta.syntax.lang.stmt.WaitTimeStmt;
+import de.fhg.iais.roberta.syntax.lang.stmt.*;
 import de.fhg.iais.roberta.typecheck.BlocklyType;
+import de.fhg.iais.roberta.typecheck.NepoInfo;
 import de.fhg.iais.roberta.visitor.lang.ILanguageVisitor;
 
+import java.util.HashMap;
+import java.util.List;
+
 public abstract class AbstractCollectorVisitor implements ILanguageVisitor<Void> {
+
+    protected int errorCount = 0;
+    protected int warningCount = 0;
 
     private final ClassToInstanceMap<IProjectBean.IBuilder<?>> beanBuilders;
     private final HashMap<Integer, Integer> waitsInLoops = new HashMap<>();
@@ -114,10 +75,8 @@ public abstract class AbstractCollectorVisitor implements ILanguageVisitor<Void>
 
     @Override
     public Void visitRgbColor(RgbColor<Void> rgbColor) {
-        rgbColor.getR().accept(this);
-        rgbColor.getG().accept(this);
-        rgbColor.getB().accept(this);
-        rgbColor.getA().accept(this);
+        requiredComponentVisited(rgbColor, rgbColor.getR(), rgbColor.getG(), rgbColor.getB());
+        optionalComponentVisited(rgbColor.getA());
         return null;
     }
 
@@ -140,28 +99,27 @@ public abstract class AbstractCollectorVisitor implements ILanguageVisitor<Void>
             || var.getVarType().equals(BlocklyType.ARRAY_STRING) ) {
             this.getBuilder(UsedHardwareBean.Builder.class).setListsUsed(true);
         }
-        var.getValue().accept(this);
+        requiredComponentVisited(var, var.getValue());
         this.getBuilder(UsedHardwareBean.Builder.class).addGlobalVariable(var.getName());
         this.getBuilder(UsedHardwareBean.Builder.class).addDeclaredVariable(var.getName());
         return null;
     }
 
     @Override
-    public Void visitUnary(Unary<Void> unary) {
-        unary.getExpr().accept(this);
+    public Void visitUnary(Unary<Void> phrase) {
+        requiredComponentVisited(phrase, phrase.getExpr());
         return null;
     }
 
     @Override
-    public Void visitBinary(Binary<Void> binary) {
-        binary.getLeft().accept(this);
-        binary.getRight().accept(this);
+    public Void visitBinary(Binary<Void> phrase) {
+        requiredComponentVisited(phrase, phrase.getLeft(), phrase.getRight());
         return null;
     }
 
     @Override
     public Void visitMathPowerFunct(MathPowerFunct<Void> mathPowerFunct) {
-        mathPowerFunct.getParam().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(mathPowerFunct, mathPowerFunct.getParam());
         return null;
     }
 
@@ -178,13 +136,13 @@ public abstract class AbstractCollectorVisitor implements ILanguageVisitor<Void>
 
     @Override
     public final Void visitExprList(ExprList<Void> exprList) {
-        exprList.get().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(exprList, exprList.get());
         return null;
     }
 
     @Override
     public final Void visitAssignStmt(AssignStmt<Void> assignStmt) {
-        assignStmt.getExpr().accept(this);
+        requiredComponentVisited(assignStmt, assignStmt.getExpr());
         String variableName = assignStmt.getName().getValue();
         if ( this.getBuilder(UsedHardwareBean.Builder.class).containsGlobalVariable(variableName) ) {
             this.getBuilder(UsedHardwareBean.Builder.class).addMarkedVariableAsGlobal(variableName);
@@ -194,11 +152,9 @@ public abstract class AbstractCollectorVisitor implements ILanguageVisitor<Void>
 
     @Override
     public Void visitIfStmt(IfStmt<Void> ifStmt) {
-        for ( int i = 0; i < ifStmt.getExpr().size(); i++ ) {
-            ifStmt.getExpr().get(i).accept(this);
-            ifStmt.getThenList().get(i).accept(this);
-        }
-        ifStmt.getElseList().accept(this);
+        requiredComponentVisited(ifStmt, ifStmt.getExpr());
+        requiredComponentVisited(ifStmt, ifStmt.getThenList());
+        requiredComponentVisited(ifStmt, ifStmt.getElseList());
         return null;
     }
 
@@ -213,17 +169,17 @@ public abstract class AbstractCollectorVisitor implements ILanguageVisitor<Void>
             ExprList<Void> exprList = (ExprList<Void>) repeatStmt.getExpr();
             String varName = ((Var<Void>) exprList.get().get(0)).getValue();
             this.getBuilder(UsedHardwareBean.Builder.class).addDeclaredVariable(varName);
-            exprList.accept(this);
+            requiredComponentVisited(repeatStmt, exprList);
         } else {
-            repeatStmt.getExpr().accept(this);
+            requiredComponentVisited(repeatStmt, repeatStmt.getExpr());
         }
 
         if ( repeatStmt.getMode() != RepeatStmt.Mode.WAIT ) {
             increaseLoopCounter();
-            repeatStmt.getList().accept(this);
+            requiredComponentVisited(repeatStmt, repeatStmt.getList());
             this.currentLoop--;
         } else {
-            repeatStmt.getList().accept(this);
+            requiredComponentVisited(repeatStmt, repeatStmt.getList());
         }
         return null;
     }
@@ -237,13 +193,13 @@ public abstract class AbstractCollectorVisitor implements ILanguageVisitor<Void>
 
     @Override
     public Void visitStmtList(StmtList<Void> stmtList) {
-        stmtList.get().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(stmtList, stmtList.get());
         return null;
     }
 
     @Override
     public Void visitMainTask(MainTask<Void> mainTask) {
-        mainTask.getVariables().accept(this);
+        requiredComponentVisited(mainTask, mainTask.getVariables());
         return null;
     }
 
@@ -251,23 +207,23 @@ public abstract class AbstractCollectorVisitor implements ILanguageVisitor<Void>
     public Void visitWaitStmt(WaitStmt<Void> waitStmt) {
         if ( this.waitsInLoops.get(this.loopCounter) != null ) {
             increaseWaitStmsInLoop();
-            waitStmt.getStatements().accept(this);
+            requiredComponentVisited(waitStmt, waitStmt.getStatements());
             decreaseWaitStmtInLoop();
         } else {
-            waitStmt.getStatements().accept(this);
+            requiredComponentVisited(waitStmt, waitStmt.getStatements());
         }
         return null;
     }
 
     @Override
     public Void visitWaitTimeStmt(WaitTimeStmt<Void> waitTimeStmt) {
-        waitTimeStmt.getTime().accept(this);
+        requiredComponentVisited(waitTimeStmt, waitTimeStmt.getTime());
         return null;
     }
 
     @Override
     public Void visitTextPrintFunct(TextPrintFunct<Void> textPrintFunct) {
-        textPrintFunct.getParam().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(textPrintFunct, textPrintFunct.getParam());
         return null;
     }
 
@@ -278,63 +234,61 @@ public abstract class AbstractCollectorVisitor implements ILanguageVisitor<Void>
 
     @Override
     public Void visitGetSubFunct(GetSubFunct<Void> getSubFunct) {
-        getSubFunct.getParam().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(getSubFunct, getSubFunct.getParam());
         return null;
     }
 
     @Override
     public Void visitIndexOfFunct(IndexOfFunct<Void> indexOfFunct) {
-        for ( Expr<Void> expr : indexOfFunct.getParam() ) {
-            expr.accept(this);
-        }
+        requiredComponentVisited(indexOfFunct, indexOfFunct.getParam());
         return null;
     }
 
     @Override
     public Void visitLengthOfIsEmptyFunct(LengthOfIsEmptyFunct<Void> lengthOfIsEmptyFunct) {
-        lengthOfIsEmptyFunct.getParam().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(lengthOfIsEmptyFunct, lengthOfIsEmptyFunct.getParam());
         return null;
     }
 
     @Override
     public Void visitListCreate(ListCreate<Void> listCreate) {
-        listCreate.getValue().accept(this);
+        requiredComponentVisited(listCreate, listCreate.getValue());
         return null;
     }
 
     @Override
     public Void visitListGetIndex(ListGetIndex<Void> listGetIndex) {
-        listGetIndex.getParam().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(listGetIndex, listGetIndex.getParam());
         return null;
     }
 
     @Override
     public Void visitListRepeat(ListRepeat<Void> listRepeat) {
-        listRepeat.getParam().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(listRepeat, listRepeat.getParam());
         return null;
     }
 
     @Override
     public Void visitListSetIndex(ListSetIndex<Void> listSetIndex) {
-        listSetIndex.getParam().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(listSetIndex, listSetIndex.getParam());
         return null;
     }
 
     @Override
     public Void visitMathConstrainFunct(MathConstrainFunct<Void> mathConstrainFunct) {
-        mathConstrainFunct.getParam().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(mathConstrainFunct, mathConstrainFunct.getParam());
         return null;
     }
 
     @Override
     public Void visitMathNumPropFunct(MathNumPropFunct<Void> mathNumPropFunct) {
-        mathNumPropFunct.getParam().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(mathNumPropFunct, mathNumPropFunct.getParam());
         return null;
     }
 
     @Override
     public Void visitMathOnListFunct(MathOnListFunct<Void> mathOnListFunct) {
-        mathOnListFunct.getParam().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(mathOnListFunct, mathOnListFunct.getParam());
         return null;
     }
 
@@ -345,91 +299,91 @@ public abstract class AbstractCollectorVisitor implements ILanguageVisitor<Void>
 
     @Override
     public Void visitMathRandomIntFunct(MathRandomIntFunct<Void> mathRandomIntFunct) {
-        mathRandomIntFunct.getParam().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(mathRandomIntFunct, mathRandomIntFunct.getParam());
         return null;
     }
 
     @Override
     public Void visitMathSingleFunct(MathSingleFunct<Void> mathSingleFunct) {
-        mathSingleFunct.getParam().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(mathSingleFunct, mathSingleFunct.getParam());
         return null;
     }
 
     @Override
     public Void visitMathCastStringFunct(MathCastStringFunct<Void> mathCastStringFunct) {
-        mathCastStringFunct.getParam().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(mathCastStringFunct, mathCastStringFunct.getParam());
         return null;
     }
 
     @Override
     public Void visitMathCastCharFunct(MathCastCharFunct<Void> mathCastCharFunct) {
-        mathCastCharFunct.getParam().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(mathCastCharFunct, mathCastCharFunct.getParam());
         return null;
     }
 
     @Override
     public Void visitTextStringCastNumberFunct(TextStringCastNumberFunct<Void> textStringCastNumberFunct) {
-        textStringCastNumberFunct.getParam().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(textStringCastNumberFunct, textStringCastNumberFunct.getParam());
         return null;
     }
 
     @Override
     public Void visitTextCharCastNumberFunct(TextCharCastNumberFunct<Void> textCharCastNumberFunct) {
-        textCharCastNumberFunct.getParam().stream().forEach(expr -> expr.accept(this));
+        requiredComponentVisited(textCharCastNumberFunct, textCharCastNumberFunct.getParam());
         return null;
     }
 
     @Override
     public Void visitTextJoinFunct(TextJoinFunct<Void> textJoinFunct) {
-        textJoinFunct.getParam().accept(this);
+        requiredComponentVisited(textJoinFunct, textJoinFunct.getParam());
         return null;
     }
 
     @Override
     public Void visitMethodVoid(MethodVoid<Void> methodVoid) {
         this.getBuilder(UsedHardwareBean.Builder.class).addUserDefinedMethod(methodVoid);
-        methodVoid.getParameters().accept(this);
-        methodVoid.getBody().accept(this);
+        requiredComponentVisited(methodVoid, methodVoid.getParameters());
+        requiredComponentVisited(methodVoid, methodVoid.getBody());
         return null;
     }
 
     @Override
     public Void visitMethodReturn(MethodReturn<Void> methodReturn) {
         this.getBuilder(UsedHardwareBean.Builder.class).addUserDefinedMethod(methodReturn);
-        methodReturn.getParameters().accept(this);
-        methodReturn.getBody().accept(this);
-        methodReturn.getReturnValue().accept(this);
+        requiredComponentVisited(methodReturn, methodReturn.getParameters());
+        requiredComponentVisited(methodReturn, methodReturn.getBody());
+        requiredComponentVisited(methodReturn, methodReturn.getReturnValue());
         return null;
     }
 
     @Override
     public Void visitMethodIfReturn(MethodIfReturn<Void> methodIfReturn) {
-        methodIfReturn.getCondition().accept(this);
-        methodIfReturn.getReturnValue().accept(this);
+        requiredComponentVisited(methodIfReturn, methodIfReturn.getCondition());
+        requiredComponentVisited(methodIfReturn, methodIfReturn.getReturnValue());
         return null;
     }
 
     @Override
     public Void visitMethodStmt(MethodStmt<Void> methodStmt) {
-        methodStmt.getMethod().accept(this);
+        requiredComponentVisited(methodStmt, methodStmt.getMethod());
         return null;
     }
 
     @Override
     public Void visitMethodCall(MethodCall<Void> methodCall) {
-        methodCall.getParametersValues().accept(this);
+        requiredComponentVisited(methodCall, methodCall.getParametersValues());
         return null;
     }
 
     @Override
     public Void visitAssertStmt(AssertStmt<Void> assertStmt) {
-        assertStmt.getAssert().accept(this);
+        requiredComponentVisited(assertStmt, assertStmt.getAssert());
         return null;
     }
 
     @Override
     public Void visitDebugAction(DebugAction<Void> debugAction) {
-        debugAction.getValue().accept(this);
+        requiredComponentVisited(debugAction, debugAction.getValue());
         return null;
     }
 
@@ -450,5 +404,61 @@ public abstract class AbstractCollectorVisitor implements ILanguageVisitor<Void>
         int count;
         count = this.waitsInLoops.get(this.loopCounter);
         this.waitsInLoops.put(this.loopCounter, ++count);
+    }
+
+    /**
+     * for the superPhrase check, that subPhrases are not empty. If true, visit the subPhrases, otherwise add error information to the superPhrase.
+     *
+     * @param superPhrase phrase, whose components should be checked and visited
+     * @param subPhrases the component of superPhrase to be checked and visited
+     */
+    @SafeVarargs
+    protected final void requiredComponentVisited(Phrase<Void> superPhrase, Phrase<Void>... subPhrases) {
+        for ( Phrase<Void> subPhrase : subPhrases ) {
+            if ( subPhrase instanceof EmptyExpr<?> ) {
+                addErrorToPhrase(superPhrase, "block is missing");
+            } else {
+                subPhrase.accept(this);
+            }
+        }
+    }
+
+    protected final <T extends Phrase<Void>> void requiredComponentVisited(Phrase<Void> superPhrase, List<T> subPhrases) {
+        for ( Phrase<Void> subPhrase : subPhrases ) {
+            if ( subPhrase instanceof EmptyExpr<?> ) {
+                addErrorToPhrase(superPhrase, "block is missing");
+            } else {
+                subPhrase.accept(this);
+            }
+        }
+    }
+
+    /**
+     * if the subPhrase is not empty, visit the subPhrase
+     *
+     * @param subPhrase
+     */
+    protected void optionalComponentVisited(Phrase<Void> subPhrase) {
+        if ( !(subPhrase instanceof EmptyExpr<?>) ) {
+            subPhrase.accept(this);
+        }
+    }
+
+    public int getErrorCount() {
+        return this.errorCount;
+    }
+
+    public int getWarningCount() {
+        return this.warningCount;
+    }
+
+    protected void addWarningToPhrase(final Phrase<Void> phrase, final String message) {
+        phrase.addInfo(NepoInfo.warning(message));
+        warningCount++;
+    }
+
+    protected void addErrorToPhrase(final Phrase<Void> phrase, final String message) {
+        phrase.addInfo(NepoInfo.error(message));
+        errorCount++;
     }
 }

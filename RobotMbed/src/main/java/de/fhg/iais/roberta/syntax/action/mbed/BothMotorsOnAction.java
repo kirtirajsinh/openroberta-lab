@@ -23,10 +23,13 @@ import de.fhg.iais.roberta.visitor.IVisitor;
 import de.fhg.iais.roberta.visitor.hardware.IMbedVisitor;
 
 /**
- * This class represents the <b>mbedActions_single_motor_on</b> block from Blockly into the AST (abstract syntax tree). Object from this class will generate
- * code for setting the motor speed and type of movement connected on given port and turn the motor on.<br/>
+ * This class represents the <b>mbedActions_single_motor_on</b> block from
+ * Blockly into the AST (abstract syntax tree). Object from this class will
+ * generate code for setting the motor speed and type of movement connected on
+ * given port and turn the motor on.<br/>
  * <br/>
- * The client must provide the {@link ActorPort} and {@link MotionParam} (number of rotations or degrees and speed).
+ * The client must provide the {@link ActorPort} and {@link MotionParam} (number
+ * of rotations or degrees and speed).
  */
 public final class BothMotorsOnAction<V> extends Action<V> {
     private final Expr<V> speedA;

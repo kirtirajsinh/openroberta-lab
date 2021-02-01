@@ -87,8 +87,6 @@ import de.fhg.iais.roberta.visitor.hardware.sensor.ISensorVisitor;
 public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorVisitor implements IAllActorsVisitor<Void>, ISensorVisitor<Void> {
 
     protected ArrayList<ArrayList<Phrase<Void>>> checkedProgram;
-    protected int errorCount = 0;
-    protected int warningCount = 0;
     protected ConfigurationAst robotConfiguration;
     public static final double DOUBLE_EPS = 1E-7;
 
@@ -97,28 +95,13 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
         this.robotConfiguration = robotConfiguration;
     }
 
-    /**
-     * @return the countErrors
-     */
-    public int getErrorCount() {
-        return this.errorCount;
-    }
-
-    /**
-     * @return the warningCount
-     */
-    public int getWarningCount() {
-        return this.warningCount;
-    }
-
     protected abstract void checkSensorPort(ExternalSensor<Void> sensor);
 
     @Override
     public Void visitVar(Var<Void> var) {
         String name = var.getValue();
         if ( !this.getBuilder(UsedHardwareBean.Builder.class).containsDeclaredVariable(name) ) {
-            var.addInfo(NepoInfo.error("VARIABLE_USED_BEFORE_DECLARATION"));
-            this.errorCount++;
+            addErrorToPhrase(var, "VARIABLE_USED_BEFORE_DECLARATION");
         }
         return null;
     }
@@ -195,8 +178,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
     @Override
     public Void visitEncoderSensor(EncoderSensor<Void> encoderSensor) {
         if ( this.robotConfiguration.optConfigurationComponent(encoderSensor.getPort()) == null ) {
-            encoderSensor.addInfo(NepoInfo.error("CONFIGURATION_ERROR_MOTOR_MISSING"));
-            this.errorCount++;
+            addErrorToPhrase(encoderSensor, "CONFIGURATION_ERROR_MOTOR_MISSING");
         }
         return null;
     }
@@ -289,8 +271,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
         if ( toneAction.getDuration().getKind().hasName("NUM_CONST") ) {
             Double toneActionConst = Double.valueOf(((NumConst<Void>) toneAction.getDuration()).getValue());
             if ( toneActionConst <= 0 ) {
-                toneAction.addInfo(NepoInfo.warning("BLOCK_NOT_EXECUTED"));
-                this.warningCount++;
+                addWarningToPhrase(toneAction, "BLOCK_NOT_EXECUTED");
             }
         }
         return null;
@@ -351,8 +332,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
     @Override
     public Void visitBluetoothReceiveAction(BluetoothReceiveAction<Void> bluetoothReceiveAction) {
         if ( bluetoothReceiveAction.getConnection() instanceof EmptyExpr ) {
-            bluetoothReceiveAction.addInfo(NepoInfo.error("CONFIGURATION_ERROR_SENSOR_WRONG"));
-            this.errorCount++;
+            addErrorToPhrase(bluetoothReceiveAction, "CONFIGURATION_ERROR_SENSOR_WRONG");
         }
         bluetoothReceiveAction.getConnection().accept(this);
         return null;
@@ -367,8 +347,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
     @Override
     public Void visitBluetoothSendAction(BluetoothSendAction<Void> bluetoothSendAction) {
         if ( bluetoothSendAction.getConnection() instanceof EmptyExpr ) {
-            bluetoothSendAction.addInfo(NepoInfo.error("CONFIGURATION_ERROR_SENSOR_WRONG"));
-            this.errorCount++;
+            addErrorToPhrase(bluetoothSendAction, "CONFIGURATION_ERROR_SENSOR_WRONG");
         }
         bluetoothSendAction.getConnection().accept(this);
         bluetoothSendAction.getMsg().accept(this);
@@ -405,8 +384,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
             if ( ifStmt.getExpr().get(0) instanceof EmptyExpr
                 || ((ExprStmt<?>) ifStmt.getElseList().get().get(0)).getExpr() instanceof EmptyExpr
                 || ((ExprStmt<?>) ifStmt.getThenList().get(0).get().get(0)).getExpr() instanceof EmptyExpr ) {
-                ifStmt.addInfo(NepoInfo.error("ERROR_MISSING_PARAMETER"));
-                this.errorCount++;
+                addErrorToPhrase(ifStmt, "ERROR_MISSING_PARAMETER");
             }
         }
         return null;
@@ -418,8 +396,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
 
     protected void checkMotorPort(MoveAction<Void> action) {
         if ( this.robotConfiguration.optConfigurationComponent(action.getUserDefinedPort()) == null ) {
-            action.addInfo(NepoInfo.error("CONFIGURATION_ERROR_MOTOR_MISSING"));
-            this.errorCount++;
+            addErrorToPhrase(action, "CONFIGURATION_ERROR_MOTOR_MISSING");
         }
     }
 
@@ -435,8 +412,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
 
     private void checkRightMotorPresenceAndRegulation(Phrase<Void> driveAction, ConfigurationComponent rightMotor) {
         if ( rightMotor == null ) {
-            driveAction.addInfo(NepoInfo.error("CONFIGURATION_ERROR_MOTOR_RIGHT_MISSING"));
-            this.errorCount++;
+            addErrorToPhrase(driveAction, "CONFIGURATION_ERROR_MOTOR_RIGHT_MISSING");
         } else {
             checkIfMotorRegulated(driveAction, rightMotor, "CONFIGURATION_ERROR_MOTOR_RIGHT_UNREGULATED");
         }
@@ -444,8 +420,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
 
     private void checkLeftMotorPresenceAndRegulation(Phrase<Void> driveAction, ConfigurationComponent leftMotor) {
         if ( leftMotor == null ) {
-            driveAction.addInfo(NepoInfo.error("CONFIGURATION_ERROR_MOTOR_LEFT_MISSING"));
-            this.errorCount++;
+            addErrorToPhrase(driveAction, "CONFIGURATION_ERROR_MOTOR_LEFT_MISSING");
         } else {
             checkIfMotorRegulated(driveAction, leftMotor, "CONFIGURATION_ERROR_MOTOR_LEFT_UNREGULATED");
         }
@@ -453,20 +428,17 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
 
     private void checkMotorRotationDirection(Phrase<Void> driveAction, ConfigurationComponent m1, ConfigurationComponent m2) {
         if ( (m1 != null) && (m2 != null) && !m1.getProperty(SC.MOTOR_REVERSE).equals(m2.getProperty(SC.MOTOR_REVERSE)) ) {
-            driveAction.addInfo(NepoInfo.error("CONFIGURATION_ERROR_MOTORS_ROTATION_DIRECTION"));
-            this.errorCount++;
+            addErrorToPhrase(driveAction, "CONFIGURATION_ERROR_MOTORS_ROTATION_DIRECTION");
         }
     }
 
     protected boolean validNumberOfMotors(Phrase<Void> driveAction) {
         if ( this.robotConfiguration.getMotors(SC.RIGHT).size() > 1 ) {
-            driveAction.addInfo(NepoInfo.error("CONFIGURATION_ERROR_MULTIPLE_RIGHT_MOTORS"));
-            this.errorCount++;
+            addErrorToPhrase(driveAction, "CONFIGURATION_ERROR_MULTIPLE_RIGHT_MOTORS");
             return false;
         }
         if ( this.robotConfiguration.getMotors(SC.LEFT).size() > 1 ) {
-            driveAction.addInfo(NepoInfo.error("CONFIGURATION_ERROR_MULTIPLE_LEFT_MOTORS"));
-            this.errorCount++;
+            addErrorToPhrase(driveAction, "CONFIGURATION_ERROR_MULTIPLE_LEFT_MOTORS");
             return false;
         }
         return true;
@@ -474,8 +446,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
 
     private void checkIfMotorRegulated(Phrase<Void> driveAction, ConfigurationComponent motor, String errorMsg) {
         if ( !motor.getProperty(SC.MOTOR_REGULATION).equals(SC.TRUE) ) {
-            driveAction.addInfo(NepoInfo.error(errorMsg));
-            this.errorCount++;
+            addErrorToPhrase(driveAction, errorMsg);
         }
     }
 
@@ -483,8 +454,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
         if ( speed.getKind().hasName("NUM_CONST") ) {
             NumConst<Void> speedNumConst = (NumConst<Void>) speed;
             if ( Math.abs(Double.valueOf(speedNumConst.getValue())) < DOUBLE_EPS ) {
-                action.addInfo(NepoInfo.warning("MOTOR_SPEED_0"));
-                this.warningCount++;
+                addWarningToPhrase(action, "MOTOR_SPEED_0");
             }
         }
     }
@@ -494,8 +464,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
             Double speedLeftNumConst = Double.valueOf(((NumConst<Void>) speedLeft).getValue());
             Double speedRightNumConst = Double.valueOf(((NumConst<Void>) speedRight).getValue());
             if ( (Math.abs(speedLeftNumConst) < DOUBLE_EPS) && (Math.abs(speedRightNumConst) < DOUBLE_EPS) ) {
-                action.addInfo(NepoInfo.warning("BLOCK_NOT_EXECUTED"));
-                this.warningCount++;
+                addWarningToPhrase(action, "BLOCK_NOT_EXECUTED");
             }
         }
     }
@@ -510,8 +479,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
     public Void visitMethodReturn(MethodReturn<Void> methodReturn) {
         super.visitMethodReturn(methodReturn);
         if ( methodReturn.getReturnValue() instanceof EmptyExpr ) {
-            methodReturn.addInfo(NepoInfo.error("ERROR_MISSING_RETURN"));
-            this.errorCount++;
+            addErrorToPhrase(methodReturn, "ERROR_MISSING_RETURN");
         }
         return null;
     }
@@ -524,8 +492,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
             oneParamEmpty = oneParamEmpty ? true : expr instanceof EmptyExpr;
         }
         if ( oneParamEmpty ) {
-            methodCall.addInfo(NepoInfo.error("ERROR_MISSING_PARAMETER"));
-            this.errorCount++;
+            addErrorToPhrase(methodCall, "ERROR_MISSING_PARAMETER");
         }
         return null;
     }
@@ -534,17 +501,14 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
     public Void visitRepeatStmt(RepeatStmt<Void> repeatStmt) {
         super.visitRepeatStmt(repeatStmt);
         if ( repeatStmt.getExpr() instanceof EmptyExpr ) {
-            repeatStmt.addInfo(NepoInfo.error("ERROR_MISSING_PARAMETER"));
-            this.errorCount++;
+            addErrorToPhrase(repeatStmt, "ERROR_MISSING_PARAMETER");
         } else if ( repeatStmt.getExpr() instanceof Unary ) {
             if ( ((Unary<Void>) repeatStmt.getExpr()).getExpr() instanceof EmptyExpr ) {
-                repeatStmt.addInfo(NepoInfo.error("ERROR_MISSING_PARAMETER"));
-                this.errorCount++;
+                addErrorToPhrase(repeatStmt, "ERROR_MISSING_PARAMETER");
             }
         } else if ( repeatStmt.getExpr() instanceof Binary ) {
             if ( ((Binary<Void>) repeatStmt.getExpr()).getRight() instanceof EmptyExpr ) {
-                repeatStmt.addInfo(NepoInfo.error("ERROR_MISSING_PARAMETER"));
-                this.errorCount++;
+                addErrorToPhrase(repeatStmt, "ERROR_MISSING_PARAMETER");
             }
         }
         return null;
@@ -569,8 +533,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
             oneParamEmpty = oneParamEmpty ? true : expr instanceof EmptyExpr;
         }
         if ( oneParamEmpty ) {
-            indexOfFunct.addInfo(NepoInfo.error("ERROR_MISSING_PARAMETER"));
-            this.errorCount++;
+            addErrorToPhrase(indexOfFunct, "ERROR_MISSING_PARAMETER");
         }
         return null;
     }
@@ -579,8 +542,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
     public Void visitMathOnListFunct(MathOnListFunct<Void> mathOnListFunct) {
         super.visitMathOnListFunct(mathOnListFunct);
         if ( mathOnListFunct.getParam().get(0) instanceof EmptyExpr ) {
-            mathOnListFunct.addInfo(NepoInfo.error("ERROR_MISSING_PARAMETER"));
-            this.errorCount++;
+            addErrorToPhrase(mathOnListFunct, "ERROR_MISSING_PARAMETER");
         }
         return null;
     }
@@ -589,8 +551,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
     public Void visitLengthOfIsEmptyFunct(LengthOfIsEmptyFunct<Void> lengthOfIsEmptyFunct) {
         super.visitLengthOfIsEmptyFunct(lengthOfIsEmptyFunct);
         if ( lengthOfIsEmptyFunct.getParam().get(0) instanceof EmptyExpr ) {
-            lengthOfIsEmptyFunct.addInfo(NepoInfo.error("ERROR_MISSING_PARAMETER"));
-            this.errorCount++;
+            addErrorToPhrase(lengthOfIsEmptyFunct, "ERROR_MISSING_PARAMETER");
         }
         return null;
     }
@@ -603,8 +564,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
             oneParamEmpty = oneParamEmpty ? true : expr instanceof EmptyExpr;
         }
         if ( oneParamEmpty ) {
-            listRepeat.addInfo(NepoInfo.error("ERROR_MISSING_PARAMETER"));
-            this.errorCount++;
+            addErrorToPhrase(listRepeat, "ERROR_MISSING_PARAMETER");
         }
         return null;
     }
@@ -613,8 +573,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
     public Void visitListGetIndex(ListGetIndex<Void> listGetIndex) {
         super.visitListGetIndex(listGetIndex);
         if ( listGetIndex.getParam().get(0) instanceof EmptyExpr ) {
-            listGetIndex.addInfo(NepoInfo.error("ERROR_MISSING_PARAMETER"));
-            this.errorCount++;
+            addErrorToPhrase(listGetIndex, "ERROR_MISSING_PARAMETER");
         }
         return null;
     }
@@ -623,8 +582,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
     public Void visitGetSubFunct(GetSubFunct<Void> getSubFunct) {
         super.visitGetSubFunct(getSubFunct);
         if ( getSubFunct.getParam().get(0) instanceof EmptyExpr ) {
-            getSubFunct.addInfo(NepoInfo.error("ERROR_MISSING_PARAMETER"));
-            this.errorCount++;
+            addErrorToPhrase(getSubFunct, "ERROR_MISSING_PARAMETER");
         }
         return null;
     }
@@ -637,8 +595,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
             oneParamEmpty = oneParamEmpty ? true : expr instanceof EmptyExpr;
         }
         if ( oneParamEmpty ) {
-            listSetIndex.addInfo(NepoInfo.error("ERROR_MISSING_PARAMETER"));
-            this.errorCount++;
+            addErrorToPhrase(listSetIndex, "ERROR_MISSING_PARAMETER");
         }
         return null;
     }
@@ -647,14 +604,12 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
     public Void visitBinary(Binary<Void> binary) {
         super.visitBinary(binary);
         if ( ((binary.getOp() == Binary.Op.MATH_CHANGE) || (binary.getOp() == Binary.Op.TEXT_APPEND)) && (!(binary.getLeft() instanceof Var)) ) {
-            binary.addInfo(NepoInfo.error("ERROR_MISSING_PARAMETER"));
-            this.errorCount++;
+            addErrorToPhrase(binary, "ERROR_MISSING_PARAMETER");
         }
 
         if ( ((binary.getOp() == Binary.Op.AND) || (binary.getOp() == Binary.Op.OR))
             && ((binary.getLeft() instanceof EmptyExpr) || (binary.getRight() instanceof EmptyExpr)) ) {
-            binary.addInfo(NepoInfo.error("ERROR_MISSING_PARAMETER"));
-            this.errorCount++;
+            addErrorToPhrase(binary, "ERROR_MISSING_PARAMETER");
         }
         return null;
     }
@@ -663,7 +618,7 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
     public Void visitEvalExpr(EvalExpr<Void> evalExpr) {
         for ( NepoInfo info : evalExpr.getInfos().getInfos() ) {
             if ( info.getSeverity() == Severity.ERROR ) {
-                addError(info.getMessage(), evalExpr);
+                addErrorToPhrase(evalExpr, info.getMessage());
                 return null;
             }
         }
@@ -695,22 +650,16 @@ public abstract class AbstractProgramValidatorVisitor extends AbstractCollectorV
             for ( TcError e : checker.getErrors() ) {
                 error.append(e.getError()).append("\n");
             }
-            addError("PROGRAM_ERROR_EXPRBLOCK_TYPECHECK", evalExpr);
+            addErrorToPhrase(evalExpr, "PROGRAM_ERROR_EXPRBLOCK_TYPECHECK");
         }
         return null;
-    }
-
-    public void addError(String messageKey, Phrase<Void> destination) {
-        destination.addInfo(NepoInfo.error(messageKey));
-        this.errorCount++;
     }
 
     @Override
     public Void visitDebugAction(DebugAction<Void> debugAction) {
         super.visitDebugAction(debugAction);
         if ( debugAction.getValue() instanceof EmptyExpr ) {
-            debugAction.addInfo(NepoInfo.error("ERROR_MISSING_PARAMETER"));
-            this.errorCount++;
+            addErrorToPhrase(debugAction, "ERROR_MISSING_PARAMETER");
         }
         return null;
     }

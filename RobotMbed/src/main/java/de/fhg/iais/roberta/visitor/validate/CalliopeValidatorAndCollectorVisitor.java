@@ -10,19 +10,17 @@ import de.fhg.iais.roberta.syntax.lang.functions.LengthOfIsEmptyFunct;
 import de.fhg.iais.roberta.syntax.lang.functions.ListGetIndex;
 import de.fhg.iais.roberta.syntax.lang.functions.ListSetIndex;
 import de.fhg.iais.roberta.syntax.lang.functions.MathOnListFunct;
-import de.fhg.iais.roberta.typecheck.NepoInfo;
 
-public class CalliopeValidatorVisitor extends MbedBoardValidatorVisitor {
+public class CalliopeValidatorAndCollectorVisitor extends MbedValidatorAndCollectorVisitor {
 
-    public CalliopeValidatorVisitor(ConfigurationAst brickConfiguration, ClassToInstanceMap<IProjectBean.IBuilder<?>> beanBuilders) {
+    public CalliopeValidatorAndCollectorVisitor(ConfigurationAst brickConfiguration, ClassToInstanceMap<IProjectBean.IBuilder<?>> beanBuilders) {
         super(brickConfiguration, beanBuilders);
     }
 
     @Override
     public Void visitIndexOfFunct(IndexOfFunct<Void> indexOfFunct) {
         if ( indexOfFunct.getParam().get(0).toString().contains("ListCreate ") ) {
-            indexOfFunct.addInfo(NepoInfo.error("BLOCK_USED_INCORRECTLY"));
-            this.errorCount++;
+            addErrorToPhrase(indexOfFunct, "BLOCK_USED_INCORRECTLY");
         }
         return super.visitIndexOfFunct(indexOfFunct);
     }
@@ -30,8 +28,7 @@ public class CalliopeValidatorVisitor extends MbedBoardValidatorVisitor {
     @Override
     public Void visitListGetIndex(ListGetIndex<Void> listGetIndex) {
         if ( listGetIndex.getParam().get(0).toString().contains("ListCreate ") ) {
-            listGetIndex.addInfo(NepoInfo.error("BLOCK_USED_INCORRECTLY"));
-            this.errorCount++;
+            addErrorToPhrase(listGetIndex, "BLOCK_USED_INCORRECTLY");
         }
         return super.visitListGetIndex(listGetIndex);
     }
@@ -39,8 +36,7 @@ public class CalliopeValidatorVisitor extends MbedBoardValidatorVisitor {
     @Override
     public Void visitListSetIndex(ListSetIndex<Void> listSetIndex) {
         if ( listSetIndex.getParam().get(0).toString().contains("ListCreate ") ) {
-            listSetIndex.addInfo(NepoInfo.error("BLOCK_USED_INCORRECTLY"));
-            this.errorCount++;
+            addErrorToPhrase(listSetIndex, "BLOCK_USED_INCORRECTLY");
         }
         return super.visitListSetIndex(listSetIndex);
     }
@@ -48,8 +44,7 @@ public class CalliopeValidatorVisitor extends MbedBoardValidatorVisitor {
     @Override
     public Void visitLengthOfIsEmptyFunct(LengthOfIsEmptyFunct<Void> lengthOfIsEmptyFunct) {
         if ( lengthOfIsEmptyFunct.getParam().get(0).toString().contains("ListCreate ") ) {
-            lengthOfIsEmptyFunct.addInfo(NepoInfo.error("BLOCK_USED_INCORRECTLY"));
-            this.errorCount++;
+            addErrorToPhrase(lengthOfIsEmptyFunct, "BLOCK_USED_INCORRECTLY");
         }
         return super.visitLengthOfIsEmptyFunct(lengthOfIsEmptyFunct);
     }
@@ -57,8 +52,7 @@ public class CalliopeValidatorVisitor extends MbedBoardValidatorVisitor {
     @Override
     public Void visitMathOnListFunct(MathOnListFunct<Void> mathOnListFunct) {
         if ( mathOnListFunct.getParam().get(0).toString().contains("ListCreate ") ) {
-            mathOnListFunct.addInfo(NepoInfo.error("BLOCK_USED_INCORRECTLY"));
-            this.errorCount++;
+            addErrorToPhrase(mathOnListFunct, "BLOCK_USED_INCORRECTLY");
         }
         return super.visitMathOnListFunct(mathOnListFunct);
     }
@@ -66,8 +60,7 @@ public class CalliopeValidatorVisitor extends MbedBoardValidatorVisitor {
     @Override
     public Void visitGetSubFunct(GetSubFunct<Void> getSubFunct) {
         if ( getSubFunct.getParam().get(0).toString().contains("ListCreate ") ) {
-            getSubFunct.addInfo(NepoInfo.error("BLOCK_USED_INCORRECTLY"));
-            this.errorCount++;
+            addErrorToPhrase(getSubFunct, "BLOCK_USED_INCORRECTLY");
         }
         return super.visitGetSubFunct(getSubFunct);
     }
