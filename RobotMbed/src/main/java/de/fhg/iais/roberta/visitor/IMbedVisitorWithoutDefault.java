@@ -1,4 +1,4 @@
-package de.fhg.iais.roberta.visitor.hardware;
+package de.fhg.iais.roberta.visitor;
 
 import de.fhg.iais.roberta.syntax.action.mbed.*;
 import de.fhg.iais.roberta.syntax.expr.mbed.Image;

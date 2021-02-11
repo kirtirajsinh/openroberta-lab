@@ -34,10 +34,10 @@ import de.fhg.iais.roberta.syntax.sensor.ExternalSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.*;
 import de.fhg.iais.roberta.syntax.sensor.mbed.RadioRssiSensor;
 import de.fhg.iais.roberta.util.dbc.DbcException;
-import de.fhg.iais.roberta.visitor.collect.CalliopeMethods;
-import de.fhg.iais.roberta.visitor.hardware.IMbedVisitorWithoutDefault;
+import de.fhg.iais.roberta.visitor.CalliopeMethods;
+import de.fhg.iais.roberta.visitor.IMbedVisitorWithoutDefault;
 
-public class MbedValidatorAndCollectorVisitor extends AbstractValidatorAndCollectorVisitor implements IMbedVisitorWithoutDefault<Void> {
+public class MbedValidatorAndCollectorVisitor extends CommonNepoValidatorAndCollectorVisitor implements IMbedVisitorWithoutDefault<Void> {
 
     public static final double DOUBLE_EPS = 1E-7;
 

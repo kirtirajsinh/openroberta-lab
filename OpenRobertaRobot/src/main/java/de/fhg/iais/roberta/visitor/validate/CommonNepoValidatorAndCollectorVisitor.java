@@ -23,7 +23,7 @@ import de.fhg.iais.roberta.visitor.lang.ILanguageVisitor;
 import java.util.HashMap;
 import java.util.List;
 
-public abstract class AbstractValidatorAndCollectorVisitor implements ILanguageVisitor<Void> {
+public abstract class CommonNepoValidatorAndCollectorVisitor implements ILanguageVisitor<Void> {
 
     protected final UsedMethodBean.Builder usedMethodBuilder;
     protected final UsedHardwareBean.Builder usedHardwareBuilder;
@@ -35,7 +35,7 @@ public abstract class AbstractValidatorAndCollectorVisitor implements ILanguageV
     private int loopCounter = 0;
     private int currentLoop = 0;
 
-    protected AbstractValidatorAndCollectorVisitor(
+    protected CommonNepoValidatorAndCollectorVisitor(
         ConfigurationAst robotConfiguration,
         ClassToInstanceMap<IProjectBean.IBuilder<?>> beanBuilders) //
     {
@@ -51,7 +51,7 @@ public abstract class AbstractValidatorAndCollectorVisitor implements ILanguageV
 
 
     @Override
-    public Void visitAssertStmt(AssertStmt<Void> assertStmt) {
+    public final Void visitAssertStmt(AssertStmt<Void> assertStmt) {
         requiredComponentVisited(assertStmt, assertStmt.getAssert());
         return null;
     }
@@ -67,13 +67,13 @@ public abstract class AbstractValidatorAndCollectorVisitor implements ILanguageV
     }
 
     @Override
-    public Void visitBinary(Binary<Void> phrase) {
+    public final Void visitBinary(Binary<Void> phrase) {
         requiredComponentVisited(phrase, phrase.getLeft(), phrase.getRight());
         return null;
     }
 
     @Override
-    public Void visitBoolConst(BoolConst<Void> boolConst) {
+    public final Void visitBoolConst(BoolConst<Void> boolConst) {
         return null;
     }
 

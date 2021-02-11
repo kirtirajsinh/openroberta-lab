@@ -5,12 +5,12 @@ import com.google.common.collect.ClassToInstanceMap;
 import de.fhg.iais.roberta.bean.IProjectBean;
 import de.fhg.iais.roberta.components.Project;
 import de.fhg.iais.roberta.visitor.validate.CommonNepoValidatorAndCollectorVisitor;
-import de.fhg.iais.roberta.visitor.validate.Calliope2017ValidatorAndCollectorVisitor;
+import de.fhg.iais.roberta.visitor.validate.CalliopeSimValidatorAndCollectorVisitor;
 
-public class Calliope2017ValidatorAndCollectorWorker extends AbstractValidatorAndCollectorWorker {
+public class CalliopeSimValidatorAndCollectorWorker extends AbstractValidatorAndCollectorWorker {
 
     @Override
     protected CommonNepoValidatorAndCollectorVisitor getVisitor(Project project, ClassToInstanceMap<IProjectBean.IBuilder<?>> beanBuilders) {
-        return new Calliope2017ValidatorAndCollectorVisitor(project.getConfigurationAst(), beanBuilders);
+        return new CalliopeSimValidatorAndCollectorVisitor(project.getConfigurationAst(), beanBuilders);
     }
 }

@@ -20,7 +20,7 @@ import de.fhg.iais.roberta.transformer.Jaxb2Ast;
 import de.fhg.iais.roberta.typecheck.BlocklyType;
 import de.fhg.iais.roberta.util.dbc.Assert;
 import de.fhg.iais.roberta.visitor.IVisitor;
-import de.fhg.iais.roberta.visitor.hardware.IMbedVisitor;
+import de.fhg.iais.roberta.visitor.IMbedVisitor;
 
 /**
  * This class represents the <b>mbedActions_single_motor_on</b> block from

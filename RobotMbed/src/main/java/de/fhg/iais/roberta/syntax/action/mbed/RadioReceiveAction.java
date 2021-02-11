@@ -16,7 +16,7 @@ import de.fhg.iais.roberta.transformer.Ast2Jaxb;
 import de.fhg.iais.roberta.transformer.Jaxb2Ast;
 import de.fhg.iais.roberta.typecheck.BlocklyType;
 import de.fhg.iais.roberta.visitor.IVisitor;
-import de.fhg.iais.roberta.visitor.hardware.IMbedVisitor;
+import de.fhg.iais.roberta.visitor.IMbedVisitor;
 
 public class RadioReceiveAction<V> extends Action<V> {
     private final BlocklyType type;

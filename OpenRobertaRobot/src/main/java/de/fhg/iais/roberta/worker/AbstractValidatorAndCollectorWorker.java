@@ -13,7 +13,7 @@ import de.fhg.iais.roberta.syntax.Phrase;
 import de.fhg.iais.roberta.util.Key;
 import de.fhg.iais.roberta.visitor.IVisitor;
 import de.fhg.iais.roberta.visitor.validate.AbstractProgramValidatorVisitor;
-import de.fhg.iais.roberta.visitor.validate.AbstractValidatorAndCollectorVisitor;
+import de.fhg.iais.roberta.visitor.validate.CommonNepoValidatorAndCollectorVisitor;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ public abstract class AbstractValidatorAndCollectorWorker implements IWorker {
         mapBuilder.put(UsedMethodBean.Builder.class, new UsedMethodBean.Builder());
         mapBuilder.put(UsedHardwareBean.Builder.class, new UsedHardwareBean.Builder());
         ImmutableClassToInstanceMap<IBuilder<?>> map = mapBuilder.build();
-        AbstractValidatorAndCollectorVisitor visitor = this.getVisitor(project, mapBuilder.build());
+        CommonNepoValidatorAndCollectorVisitor visitor = this.getVisitor(project, mapBuilder.build());
         List<List<Phrase<Void>>> tree = project.getProgramAst().getTree();
         // workaround: because methods in the tree may use global variables before the main task is
         // reached within the tree, the variables may not exist yet and show up as not declared
@@ -56,7 +56,7 @@ public abstract class AbstractValidatorAndCollectorWorker implements IWorker {
      * @param beanBuilders a map of available bean builders, may be empty
      * @return the appropriate visitor for the current robot
      */
-    protected abstract AbstractValidatorAndCollectorVisitor getVisitor(Project project, ClassToInstanceMap<IProjectBean.IBuilder<?>> beanBuilders);
+    protected abstract CommonNepoValidatorAndCollectorVisitor getVisitor(Project project, ClassToInstanceMap<IProjectBean.IBuilder<?>> beanBuilders);
 
     private void collectGlobalVariables(Iterable<List<Phrase<Void>>> phrasesSet, IVisitor<Void> visitor) {
         for ( List<Phrase<Void>> phrases : phrasesSet ) {

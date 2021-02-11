@@ -17,7 +17,7 @@ import de.fhg.iais.roberta.transformer.ExprParam;
 import de.fhg.iais.roberta.transformer.Jaxb2Ast;
 import de.fhg.iais.roberta.typecheck.BlocklyType;
 import de.fhg.iais.roberta.visitor.IVisitor;
-import de.fhg.iais.roberta.visitor.hardware.IMbedVisitor;
+import de.fhg.iais.roberta.visitor.IMbedVisitor;
 
 public class RadioSetChannelAction<V> extends Action<V> {
     private final Expr<V> channel;

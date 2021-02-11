@@ -42,118 +42,30 @@ import de.fhg.iais.roberta.syntax.sensor.generic.PinTouchSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.TemperatureSensor;
 import de.fhg.iais.roberta.syntax.sensor.generic.UltrasonicSensor;
 import de.fhg.iais.roberta.syntax.sensor.mbed.RadioRssiSensor;
-import de.fhg.iais.roberta.visitor.hardware.IMbedVisitor;
+import de.fhg.iais.roberta.visitor.IMbedVisitorWithoutDefault;
 
-public final class MicrobitSimValidatorVisitor extends AbstractSimValidatorVisitor implements IMbedVisitor<Void> {
+public final class MicrobitSimValidatorAndCollectorVisitor extends MbedValidatorAndCollectorVisitor implements IMbedVisitorWithoutDefault<Void> {
 
-    public MicrobitSimValidatorVisitor(ConfigurationAst brickConfiguration, ClassToInstanceMap<IProjectBean.IBuilder<?>> beanBuilders) {
+    public MicrobitSimValidatorAndCollectorVisitor(ConfigurationAst brickConfiguration, ClassToInstanceMap<IProjectBean.IBuilder<?>> beanBuilders) {
         super(brickConfiguration, beanBuilders);
     }
 
     @Override
     public Void visitMotorOnAction(MotorOnAction<Void> motorOnAction) {
-        super.visitMotorOnAction(motorOnAction);
         addWarningToPhrase(motorOnAction, "SIM_BLOCK_NOT_SUPPORTED");
-        return null;
-    }
-
-    @Override
-    public Void visitMotorStopAction(MotorStopAction<Void> motorStopAction) {
-        super.visitMotorStopAction(motorStopAction);
-        return null;
-    }
-
-    @Override
-    public Void visitDisplayTextAction(DisplayTextAction<Void> displayTextAction) {
-        displayTextAction.getMsg().accept(this);
-        return null;
-    }
-
-    @Override
-    public Void visitPredefinedImage(PredefinedImage<Void> predefinedImage) {
-        return null;
-    }
-
-    @Override
-    public Void visitDisplayImageAction(DisplayImageAction<Void> displayImageAction) {
-        displayImageAction.getValuesToDisplay().accept(this);
-        return null;
-    }
-
-    @Override
-    public Void visitImageShiftFunction(ImageShiftFunction<Void> imageShiftFunction) {
-        imageShiftFunction.getImage().accept(this);
-        imageShiftFunction.getPositions().accept(this);
-        return null;
-    }
-
-    @Override
-    public Void visitImageInvertFunction(ImageInvertFunction<Void> imageInvertFunction) {
-        imageInvertFunction.getImage().accept(this);
-        return null;
-    }
-
-    @Override
-    public Void visitImage(Image<Void> image) {
-        return null;
-    }
-
-    @Override
-    public Void visitGestureSensor(GestureSensor<Void> gestureSensor) {
-        return null;
-    }
-
-    @Override
-    public Void visitCompassSensor(CompassSensor<Void> compassSensor) {
-        return null;
-    }
-
-    @Override
-    public Void visitLightSensor(LightSensor<Void> lightSensor) {
-        return null;
-    }
-
-    @Override
-    public Void visitTemperatureSensor(TemperatureSensor<Void> temperatureSensor) {
-        return null;
-    }
-
-    @Override
-    public Void visitColorConst(ColorConst<Void> colorConst) {
-        return null;
-    }
-
-    @Override
-    public Void visitLedOnAction(LedOnAction<Void> ledOnAction) {
-        ledOnAction.getLedColor().accept(this);
-        return null;
+        return super.visitMotorOnAction(motorOnAction);
     }
 
     @Override
     public Void visitRadioSendAction(RadioSendAction<Void> radioSendAction) {
-        radioSendAction.getMsg().accept(this);
         addWarningToPhrase(radioSendAction, "SIM_BLOCK_NOT_SUPPORTED");
-        return null;
+        return super.visitRadioSendAction(radioSendAction);
     }
 
     @Override
     public Void visitRadioReceiveAction(RadioReceiveAction<Void> radioReceiveAction) {
         addWarningToPhrase(radioReceiveAction, "SIM_BLOCK_NOT_SUPPORTED");
-        return null;
-    }
-
-    @Override
-    public Void visitRgbColor(RgbColor<Void> rgbColor) {
-        rgbColor.getR().accept(this);
-        rgbColor.getG().accept(this);
-        rgbColor.getB().accept(this);
-        rgbColor.getA().accept(this);
-        return null;
-    }
-
-    @Override
-    public Void visitPinTouchSensor(PinTouchSensor<Void> pinTouchSensor) {
-        return null;
+        return super.visitRadioReceiveAction(radioReceiveAction);
     }
 
     @Override
@@ -161,88 +73,55 @@ public final class MicrobitSimValidatorVisitor extends AbstractSimValidatorVisit
         if ( pinValueSensor.getMode().equals(SC.PULSEHIGH) || pinValueSensor.getMode().equals(SC.PULSELOW) || pinValueSensor.getMode().equals(SC.PULSE) ) {
             addWarningToPhrase(pinValueSensor, "SIM_BLOCK_NOT_SUPPORTED");
         }
-        return null;
-    }
-
-    @Override
-    public Void visitPinWriteValueAction(PinWriteValueAction<Void> pinWriteValueAction) {
-        pinWriteValueAction.getValue().accept(this);
-        return null;
-    }
-
-    @Override
-    public Void visitDisplaySetBrightnessAction(DisplaySetBrightnessAction<Void> displaySetBrightnessAction) {
-        displaySetBrightnessAction.getBrightness().accept(this);
-        return null;
-    }
-
-    @Override
-    public Void visitDisplayGetBrightnessAction(DisplayGetBrightnessAction<Void> displayGetBrightnessAction) {
-        return null;
-    }
-
-    @Override
-    public Void visitDisplaySetPixelAction(DisplaySetPixelAction<Void> displaySetPixelAction) {
-        displaySetPixelAction.getBrightness().accept(this);
-        displaySetPixelAction.getX().accept(this);
-        displaySetPixelAction.getY().accept(this);
-        return null;
-    }
-
-    @Override
-    public Void visitDisplayGetPixelAction(DisplayGetPixelAction<Void> displayGetPixelAction) {
-        displayGetPixelAction.getX().accept(this);
-        displayGetPixelAction.getY().accept(this);
-        return null;
+        return super.visitPinGetValueSensor(pinValueSensor);
     }
 
     @Override
     public Void visitRadioSetChannelAction(RadioSetChannelAction<Void> radioSetChannelAction) {
-        radioSetChannelAction.getChannel().accept(this);
         addWarningToPhrase(radioSetChannelAction, "SIM_BLOCK_NOT_SUPPORTED");
-        return null;
+        return super.visitRadioSetChannelAction(radioSetChannelAction);
     }
 
     @Override
     public Void visitRadioRssiSensor(RadioRssiSensor<Void> radioRssiSensor) {
         addWarningToPhrase(radioRssiSensor, "SIM_BLOCK_NOT_SUPPORTED");
-        return null;
+        return super.visitRadioRssiSensor(radioRssiSensor);
     }
 
     @Override
     public Void visitAccelerometer(AccelerometerSensor<Void> accelerometerSensor) {
         addWarningToPhrase(accelerometerSensor, "SIM_BLOCK_NOT_SUPPORTED");
-        return null;
+        return super.visitAccelerometer(accelerometerSensor);
     }
 
     @Override
     public Void visitFourDigitDisplayShowAction(FourDigitDisplayShowAction<Void> fourDigitDisplayShowAction) {
         addWarningToPhrase(fourDigitDisplayShowAction, "SIM_BLOCK_NOT_SUPPORTED");
-        return null;
+        return super.visitFourDigitDisplayShowAction(fourDigitDisplayShowAction);
     }
 
     @Override
     public Void visitFourDigitDisplayClearAction(FourDigitDisplayClearAction<Void> fourDigitDisplayClearAction) {
         addWarningToPhrase(fourDigitDisplayClearAction, "SIM_BLOCK_NOT_SUPPORTED");
-        return null;
+        return super.visitFourDigitDisplayClearAction(fourDigitDisplayClearAction);
     }
 
     @Override
     public Void visitLedBarSetAction(LedBarSetAction<Void> ledBarSetAction) {
         addWarningToPhrase(ledBarSetAction, "SIM_BLOCK_NOT_SUPPORTED");
-        return null;
+        return super.visitLedBarSetAction(ledBarSetAction);
     }
 
     @Override
     public Void visitSwitchLedMatrixAction(SwitchLedMatrixAction<Void> switchLedMatrixAction) {
         addWarningToPhrase(switchLedMatrixAction, "SIM_BLOCK_NOT_SUPPORTED");
-        return null;
+        return super.visitSwitchLedMatrixAction(switchLedMatrixAction);
     }
 
     @Override
     public Void visitPinSetPullAction(PinSetPullAction<Void> pinSetPullAction) {
         addWarningToPhrase(pinSetPullAction, "SIM_BLOCK_NOT_SUPPORTED");
-        return null;
+        return super.visitPinSetPullAction(pinSetPullAction);
     }
 
     @Override
@@ -254,28 +133,19 @@ public final class MicrobitSimValidatorVisitor extends AbstractSimValidatorVisit
     @Override
     public Void visitBothMotorsStopAction(BothMotorsStopAction<Void> bothMotorsStopAction) {
         addWarningToPhrase(bothMotorsStopAction, "SIM_BLOCK_NOT_SUPPORTED");
-        return null;
+        return super.visitBothMotorsStopAction(bothMotorsStopAction);
     }
 
     @Override
     public Void visitHumiditySensor(HumiditySensor<Void> humiditySensor) {
-        super.visitHumiditySensor(humiditySensor);
         addWarningToPhrase(humiditySensor, "SIM_BLOCK_NOT_SUPPORTED");
-        return null;
-    }
-
-    @Override
-    public Void visitInfraredSensor(InfraredSensor<Void> infraredSensor) {
-        super.visitInfraredSensor(infraredSensor);
-        addWarningToPhrase(infraredSensor, "SIM_BLOCK_NOT_SUPPORTED");
-        return null;
+        return super.visitHumiditySensor(humiditySensor);
     }
 
     @Override
     public Void visitUltrasonicSensor(UltrasonicSensor<Void> ultrasonicSensor) {
-        super.visitUltrasonicSensor(ultrasonicSensor);
         addWarningToPhrase(ultrasonicSensor, "SIM_BLOCK_NOT_SUPPORTED");
-        return null;
+        return super.visitUltrasonicSensor(ultrasonicSensor);
     }
 
 }
