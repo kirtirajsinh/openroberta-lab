@@ -112,10 +112,10 @@ public class ProjectWorkflowRestController {
             ProjectService.executeWorkflow("run", project);
             response.setCmd("runPBack");
             response.setConfAnnos(project.getConfAnnotationList());
-            response.setErrorCounter(project.getErrorCounter());
             response.setCompiledCode(project.getCompiledHex());
             // TODO auto connection robots return COMPILERWORKFLOW_SUCCESS or COMPILERWORKFLOW_PROGRAM_GENERATION_SUCCESS
             // TODO which is not mapped to anything in the frontend, ROBOT_PUSH_RUN is mapped to the message that was used before workflows
+            response.setProgXML(project.getAnnotatedProgramAsXml());
             if ( project.getResult() == Key.COMPILERWORKFLOW_SUCCESS || project.getResult() == Key.COMPILERWORKFLOW_PROGRAM_GENERATION_SUCCESS ) {
                 project.setResult(Key.ROBOT_PUSH_RUN);
             }
@@ -150,7 +150,6 @@ public class ProjectWorkflowRestController {
             ProjectService.executeWorkflow("compile", project);
             response.setCmd("compileP");
             response.setProgXML(project.getAnnotatedProgramAsXml());
-            response.setErrorCounter(project.getErrorCounter());
             response.setCompiledCode(project.getCompiledHex());
             addProjectResultToResponse(response, project);
             final int programLength = StringUtils.countMatches(project.getAnnotatedProgramAsXml(), "<block ");
@@ -175,7 +174,6 @@ public class ProjectWorkflowRestController {
             Project project = request2project(wfRequest, httpSessionState, this.robotCommunicator, false, false);
             ProjectService.executeWorkflow("runnative", project);
             response.setCmd("runNative");
-            response.setErrorCounter(project.getErrorCounter());
             response.setCompiledCode(project.getCompiledHex());
             addProjectResultToResponse(response, project);
             Statistics.info("ProgramRunNative", "LoggedIn", httpSessionState.isUserLoggedIn(), "success", project.hasSucceeded());
@@ -199,7 +197,6 @@ public class ProjectWorkflowRestController {
             Project project = request2project(wfRequest, httpSessionState, this.robotCommunicator, false, false);
             ProjectService.executeWorkflow("compilenative", project);
             response.setCmd("runNative");
-            response.setErrorCounter(project.getErrorCounter());
             response.setCompiledCode(project.getCompiledHex());
             addProjectResultToResponse(response, project);
             Statistics.info("ProgramCompileNative", "LoggedIn", httpSessionState.isUserLoggedIn(), "success", project.hasSucceeded());
@@ -230,7 +227,6 @@ public class ProjectWorkflowRestController {
             ProjectService.executeWorkflow("reset", project);
             response.setCmd("reset");
             response.setProgramName(project.getProgramName());
-            response.setErrorCounter(project.getErrorCounter());
             response.setCompiledCode(project.getCompiledHex());
             addProjectResultToResponse(response, project);
             Statistics.info("ProgramReset", "LoggedIn", httpSessionState.isUserLoggedIn(), "success", project.hasSucceeded());

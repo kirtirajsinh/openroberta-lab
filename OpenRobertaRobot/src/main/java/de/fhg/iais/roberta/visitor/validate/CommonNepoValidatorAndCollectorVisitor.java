@@ -445,7 +445,7 @@ public abstract class CommonNepoValidatorAndCollectorVisitor implements ILanguag
     protected final void requiredComponentVisited(Phrase<Void> superPhrase, Phrase<Void>... subPhrases) {
         for ( Phrase<Void> subPhrase : subPhrases ) {
             if ( subPhrase instanceof EmptyExpr<?> ) {
-                addErrorToPhrase(superPhrase, "block is missing");
+                addErrorToPhrase(superPhrase, "ERROR_MISSING_PARAMETER");
             } else {
                 subPhrase.accept(this);
             }
@@ -455,7 +455,7 @@ public abstract class CommonNepoValidatorAndCollectorVisitor implements ILanguag
     protected final <T extends Phrase<Void>> void requiredComponentVisited(Phrase<Void> superPhrase, List<T> subPhrases) {
         for ( Phrase<Void> subPhrase : subPhrases ) {
             if ( subPhrase instanceof EmptyExpr<?> ) {
-                addErrorToPhrase(superPhrase, "block is missing");
+                addErrorToPhrase(superPhrase, "ERROR_MISSING_PARAMETER");
             } else {
                 subPhrase.accept(this);
             }
