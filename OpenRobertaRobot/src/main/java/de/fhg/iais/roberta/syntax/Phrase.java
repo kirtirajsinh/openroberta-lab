@@ -1,6 +1,11 @@
 package de.fhg.iais.roberta.syntax;
 
+import java.lang.reflect.Field;
+
 import de.fhg.iais.roberta.blockly.generated.Block;
+import de.fhg.iais.roberta.transformer.Ast2Jaxb;
+import de.fhg.iais.roberta.transformer.NepoComponent;
+import de.fhg.iais.roberta.transformer.NepoPhrase;
 import de.fhg.iais.roberta.typecheck.NepoInfo;
 import de.fhg.iais.roberta.typecheck.NepoInfos;
 import de.fhg.iais.roberta.util.dbc.Assert;
@@ -130,9 +135,71 @@ abstract public class Phrase<V> {
     }
 
     /**
-     * @return converts AST representation of block to JAXB representation of block
+     * converts the AST representation of this block to a JAXB (~~XML) representation of the block<br>
+     * <b>This is the default implementation of annotated AST classes</b>
+     *
+     * @return the JAXB (~~XML) representation
      */
-    public abstract Block astToBlock();
+    public Block astToBlock() {
+        NepoPhrase classAnno = this.getClass().getAnnotation(NepoPhrase.class);
+        if ( classAnno == null ) {
+            throw new DbcException("the default implementation of astToBlock() fails with the NOT annotated class " + this.getClass().getSimpleName());
+        }
+        Block jaxbDestination = new Block();
+        Ast2Jaxb.setBasicProperties(this, jaxbDestination);
+        for ( Field field : this.getClass().getDeclaredFields() ) {
+            NepoComponent fieldAnno = field.getAnnotation(NepoComponent.class);
+            if ( fieldAnno != null ) {
+                try {
+                    Ast2Jaxb.addValue(jaxbDestination, fieldAnno.fieldName(), (Phrase<?>) field.get(this));
+                } catch ( IllegalArgumentException | IllegalAccessException e ) {
+                    throw new DbcException(
+                        "the field " + fieldAnno.fieldName() + " of the annotated class " + this.getClass().getSimpleName() + " cannot be accessed",
+                        e);
+                }
+            }
+        }
+        return jaxbDestination;
+    }
+
+    /**
+     * the String representation of this phrase. To be used for debugging, not programming!<br>
+     * <b>This is the default implementation of annotated AST classes</b>
+     *
+     * @return the String representation of this phrase
+     */
+    @Override
+    public String toString() {
+        Class<?> clazz = this.getClass();
+        NepoPhrase classAnno = clazz.getAnnotation(NepoPhrase.class);
+        if ( classAnno == null ) {
+            throw new DbcException("the default implementation of toString() fails with the NOT annotated class " + clazz.getSimpleName());
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(clazz.getSimpleName()).append("[");
+        boolean first = true;
+        for ( Field field : clazz.getDeclaredFields() ) {
+            NepoComponent fieldAnno = field.getAnnotation(NepoComponent.class);
+            if ( fieldAnno != null ) {
+                if ( first ) {
+                    first = false;
+                } else {
+                    sb.append(", ");
+                }
+                try {
+                    sb.append(field.getName()).append(": ").append(field.get(this).toString());
+                } catch ( IllegalArgumentException | IllegalAccessException e ) {
+                    throw new DbcException(
+                        "the default implementation of toString() fails when accessing the field "
+                            + field.getName()
+                            + " of the annotated class "
+                            + clazz.getSimpleName());
+                }
+            }
+        }
+        sb.append("]");
+        return sb.toString();
+    }
 
     /**
      * append a newline, then append spaces up to an indentation level, then append an (optional) text<br>
