@@ -17,9 +17,19 @@ public interface IVisitor<V> {
             @SuppressWarnings("unchecked")
             V result = (V) m.invoke(this, new Object[]{visitable});
             return result;
-        } catch ( NoSuchMethodException | IllegalAccessException | InvocationTargetException e ) {
+        } catch ( NoSuchMethodException e ) {
             throw new DbcException(String.format("visit Method \"%s\" not found on \"%s\" (Block \"%s\" not supported)", methodName, this.getClass().getSimpleName(), className), e);
+        } catch ( IllegalAccessException e ) {
+            throw new DbcException(e);
+        } catch ( InvocationTargetException e ) {
+            // rethrow cause
+            Throwable cause = e.getCause();
+            if ( cause instanceof RuntimeException ) {
+                throw (RuntimeException) cause;
+            }
+            throw new DbcException(String.format("unexpected exception was throw inside a visit method %s#%s", className, methodName), e);
         }
+
     }
 
 }

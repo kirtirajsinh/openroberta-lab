@@ -414,7 +414,7 @@ public final class ArduinoCppVisitor extends AbstractCommonArduinoCppVisitor imp
     }
 
     @Override
-    public Void visitAccelerometer(AccelerometerSensor<Void> accelerometerSensor) {
+    public Void visitAccelerometerSensor(AccelerometerSensor<Void> accelerometerSensor) {
         this.sb.append("_imu_").append(accelerometerSensor.getPort()).append(".readFloatAccel").append(accelerometerSensor.getMode()).append("()");
         return null;
     }

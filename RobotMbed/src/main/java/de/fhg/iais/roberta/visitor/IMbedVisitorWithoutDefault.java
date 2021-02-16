@@ -91,7 +91,7 @@ public interface IMbedVisitorWithoutDefault<V>
 
     V visitTemperatureSensor(TemperatureSensor<V> temperatureSensor);
 
-    V visitAccelerometer(AccelerometerSensor<V> accelerometerSensor);
+    V visitAccelerometerSensor(AccelerometerSensor<V> accelerometerSensor);
 
     V visitPinTouchSensor(PinTouchSensor<V> pinTouchSensor);
 

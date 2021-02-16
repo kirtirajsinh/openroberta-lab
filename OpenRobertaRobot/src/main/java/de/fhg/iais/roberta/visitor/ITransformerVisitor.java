@@ -923,7 +923,7 @@ public interface ITransformerVisitor<V> extends ISensorVisitor<Phrase<V>>, IAllA
     }
 
     @Override
-    default Phrase<V> visitAccelerometer(AccelerometerSensor<Phrase<V>> accelerometerSensor) {
+    default Phrase<V> visitAccelerometerSensor(AccelerometerSensor<Phrase<V>> accelerometerSensor) {
         return AccelerometerSensor
             .make(
                 new SensorMetaDataBean(

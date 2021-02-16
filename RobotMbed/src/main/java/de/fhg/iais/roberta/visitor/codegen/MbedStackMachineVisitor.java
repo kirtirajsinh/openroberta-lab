@@ -353,7 +353,7 @@ public class MbedStackMachineVisitor<V> extends AbstractStackMachineVisitor<V> i
     }
 
     @Override
-    public V visitAccelerometer(AccelerometerSensor<V> accelerometerSensor) {
+    public V visitAccelerometerSensor(AccelerometerSensor<V> accelerometerSensor) {
         return null;
     }
 
