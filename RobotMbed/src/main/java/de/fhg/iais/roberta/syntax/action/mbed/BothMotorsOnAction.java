@@ -19,8 +19,6 @@ import de.fhg.iais.roberta.transformer.ExprParam;
 import de.fhg.iais.roberta.transformer.Jaxb2Ast;
 import de.fhg.iais.roberta.typecheck.BlocklyType;
 import de.fhg.iais.roberta.util.dbc.Assert;
-import de.fhg.iais.roberta.visitor.IVisitor;
-import de.fhg.iais.roberta.visitor.IMbedVisitor;
 
 /**
  * This class represents the <b>mbedActions_single_motor_on</b> block from
@@ -112,11 +110,6 @@ public final class BothMotorsOnAction<V> extends Action<V> {
     @Override
     public String toString() {
         return "BothMotorsOnAction [" + this.portA + ", " + this.speedA + ", " + this.portB + ", " + this.speedB + "]";
-    }
-
-    @Override
-    protected V acceptImpl(IVisitor<V> visitor) {
-        return ((IMbedVisitor<V>) visitor).visitBothMotorsOnAction(this);
     }
 
     @Override

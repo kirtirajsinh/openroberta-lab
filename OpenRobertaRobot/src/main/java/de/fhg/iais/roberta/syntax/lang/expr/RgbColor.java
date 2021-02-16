@@ -14,8 +14,6 @@ import de.fhg.iais.roberta.transformer.Ast2Jaxb;
 import de.fhg.iais.roberta.transformer.ExprParam;
 import de.fhg.iais.roberta.transformer.Jaxb2Ast;
 import de.fhg.iais.roberta.typecheck.BlocklyType;
-import de.fhg.iais.roberta.visitor.IVisitor;
-import de.fhg.iais.roberta.visitor.lang.ILanguageVisitor;
 
 /**
  * This class represents the <b>robColour_rgb</b> block from Blockly into the AST (abstract syntax tree). Object from this class will generate color.<br/>
@@ -85,12 +83,6 @@ public class RgbColor<V> extends Expr<V> {
     @Override
     public String toString() {
         return "RgbColor [" + this.R + ", " + this.G + ", " + this.B + ", " + this.A + "]";
-    }
-
-    @Override
-    protected V acceptImpl(IVisitor<V> visitor) {
-        return ((ILanguageVisitor<V>) visitor).visitRgbColor(this);
-
     }
 
     /**

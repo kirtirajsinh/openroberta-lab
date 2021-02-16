@@ -105,13 +105,8 @@ abstract public class Phrase<V> {
         if ( getProperty().isDisabled() || (getProperty().isInTask() != null && getProperty().isInTask() == false) ) {
             return null;
         }
-        return this.acceptImpl(visitor);
+        return visitor.visit(this);
     }
-
-    /**
-     * accept an visitor
-     */
-    protected abstract V acceptImpl(IVisitor<V> visitor);
 
     /**
      * Can be used to modify the Phrase itself. Used in conjunction with {@link ITransformerVisitor} to replace phrases with copies of themselves or even other
@@ -123,7 +118,7 @@ abstract public class Phrase<V> {
     public final Phrase<Void> modify(ITransformerVisitor<?> visitor) {
         // don't use accept, go over ALL blocks
         @SuppressWarnings("unchecked")
-        V v = this.acceptImpl((IVisitor<V>) visitor);
+        V v = ((IVisitor<V>) visitor).visit(this);
 
         if ( v instanceof Phrase ) {
             @SuppressWarnings("unchecked")
