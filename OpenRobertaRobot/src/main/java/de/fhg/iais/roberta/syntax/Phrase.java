@@ -135,7 +135,7 @@ abstract public class Phrase<V> {
     }
 
     /**
-     * converts the AST representation of this block to a JAXB (~~XML) representation of the block<br>
+     * converts the AST representation of this block to a JAXB (~~XML) representation<br>
      * <b>This is the default implementation of annotated AST classes</b>
      *
      * @return the JAXB (~~XML) representation
@@ -151,7 +151,11 @@ abstract public class Phrase<V> {
             NepoComponent fieldAnno = field.getAnnotation(NepoComponent.class);
             if ( fieldAnno != null ) {
                 try {
-                    Ast2Jaxb.addValue(jaxbDestination, fieldAnno.fieldName(), (Phrase<?>) field.get(this));
+                    if ( fieldAnno.isFieldWithDefault().equals(NepoComponent.DEFAULT_FIELD_VALUE) ) {
+                        Ast2Jaxb.addValue(jaxbDestination, fieldAnno.fieldName(), (Phrase<?>) field.get(this));
+                    } else {
+                        Ast2Jaxb.addField(jaxbDestination, fieldAnno.fieldName(), (String) field.get(this));
+                    }
                 } catch ( IllegalArgumentException | IllegalAccessException e ) {
                     throw new DbcException(
                         "the field " + fieldAnno.fieldName() + " of the annotated class " + this.getClass().getSimpleName() + " cannot be accessed",

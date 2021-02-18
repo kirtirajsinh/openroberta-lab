@@ -212,7 +212,7 @@ public interface ITransformerVisitor<V> extends ISensorVisitor<Phrase<V>>, IAllA
 
     @Override
     default Phrase<V> visitClearDisplayAction(ClearDisplayAction<Phrase<V>> clearDisplayAction) {
-        return ClearDisplayAction.make(clearDisplayAction.getPort(), clearDisplayAction.getProperty(), clearDisplayAction.getComment());
+        return ClearDisplayAction.make(clearDisplayAction.getProperty(), clearDisplayAction.getComment(), clearDisplayAction.getPort());
     }
 
     @Override

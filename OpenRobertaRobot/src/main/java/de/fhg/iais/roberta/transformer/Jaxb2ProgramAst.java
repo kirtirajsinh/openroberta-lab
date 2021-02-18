@@ -4,6 +4,9 @@ import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.fhg.iais.roberta.blockly.generated.Block;
 import de.fhg.iais.roberta.blockly.generated.BlockSet;
 import de.fhg.iais.roberta.blockly.generated.Instance;
@@ -20,6 +23,7 @@ import de.fhg.iais.roberta.util.dbc.DbcException;
  * JAXB to AST transformer. Client should provide tree of jaxb objects.
  */
 public class Jaxb2ProgramAst<V> extends AbstractJaxb2Ast<V> {
+    private static final Logger LOG = LoggerFactory.getLogger(Jaxb2ProgramAst.class);
 
     public Jaxb2ProgramAst(IRobotFactory robotFactory) {
         super(robotFactory);
@@ -59,7 +63,7 @@ public class Jaxb2ProgramAst<V> extends AbstractJaxb2Ast<V> {
     @Override
     protected Phrase<V> blockToAST(Block block) {
         if ( block == null ) {
-            throw new DbcException("Invalid block: " + block);
+            throw new DbcException("Invalid null block");
         }
         String type = block.getType().trim().toLowerCase();
         BlockType matchingBlockType = BlockTypeContainer.getByBlocklyName(type);
@@ -94,38 +98,60 @@ public class Jaxb2ProgramAst<V> extends AbstractJaxb2Ast<V> {
     private Phrase<V> block2astByAnnotation(Block block, Class<?> astClass) {
         try {
             NepoPhrase classAnno = astClass.getAnnotation(NepoPhrase.class);
+            if ( !block.getType().equals(classAnno.containerType()) ) {
+                LOG.error("block and anno type don't match: " + block.getType() + " <==> " + classAnno.containerType());
+            }
             BlockType btc = BlockTypeContainer.getByName(classAnno.containerType());
             BlocklyBlockProperties bp = Jaxb2Ast.extractBlockProperties(block);
             BlocklyComment bc = Jaxb2Ast.extractComment(block);
-            List<Value> values = block.getValue();
             Constructor<?> declaredConstructor = astClass.getDeclaredConstructor(BlockType.class, BlocklyBlockProperties.class, BlocklyComment.class);
             @SuppressWarnings("unchecked")
             Phrase<V> tk = (Phrase<V>) declaredConstructor.newInstance(btc, bp, bc);
             for ( Field field : astClass.getDeclaredFields() ) {
                 NepoComponent fieldAnno = field.getAnnotation(NepoComponent.class);
                 if ( fieldAnno != null ) {
-                    Phrase<V> sub = extractValue(values, new ExprParam(fieldAnno.fieldName(), fieldAnno.fieldType()));
-                    if ( field.getType().equals(Expr.class) ) {
-                        try {
-                            field.setAccessible(true);
-                            Field modifiersField = Field.class.getDeclaredField("modifiers");
-                            modifiersField.setAccessible(true);
-                            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-                            field.set(tk, AbstractJaxb2Ast.convertPhraseToExpr(sub));
-                            modifiersField.setInt(field, field.getModifiers() & Modifier.FINAL);
-                            modifiersField.setAccessible(false);
-                            field.setAccessible(false);
-                        } catch ( IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException e ) {
-                            throw new DbcException("field " + field.getName() + " in AST class " + astClass.getSimpleName() + " could not be assigned to", e);
+                    if ( fieldAnno.isFieldWithDefault().equals(NepoComponent.DEFAULT_FIELD_VALUE) ) {
+                        List<Value> values = block.getValue();
+                        Phrase<V> sub = extractValue(values, new ExprParam(fieldAnno.fieldName(), fieldAnno.fieldType()));
+                        if ( field.getType().equals(Expr.class) ) {
+                            assignToPublicFinalField(astClass, tk, field, AbstractJaxb2Ast.convertPhraseToExpr(sub));
+                        } else {
+                            throw new DbcException(
+                                "type of " + field.getType().getSimpleName() + " in AST class " + astClass.getSimpleName() + " not supported");
                         }
                     } else {
-                        throw new DbcException("type of " + field.getType().getSimpleName() + " in AST class " + astClass.getSimpleName() + " not supported");
+                        List<de.fhg.iais.roberta.blockly.generated.Field> xmlFields = block.getField();
+                        String fieldValue = null;
+                        for ( de.fhg.iais.roberta.blockly.generated.Field xmlField : xmlFields ) {
+                            if ( field.getName().equals(fieldAnno.fieldName()) ) {
+                                fieldValue = xmlField.getValue();
+                            }
+                        }
+                        if ( fieldValue == null ) {
+                            fieldValue = fieldAnno.isFieldWithDefault();
+                        }
+                        assignToPublicFinalField(astClass, tk, field, fieldValue);
                     }
                 }
             }
             return tk;
         } catch ( NoSuchMethodException | InstantiationException | InvocationTargetException | IllegalAccessException | IllegalArgumentException e ) {
             throw new DbcException("constructor in AST class " + astClass.getSimpleName() + " not found or invalid", e);
+        }
+    }
+
+    private void assignToPublicFinalField(Class<?> astClass, Phrase<V> tk, Field field, Object sub) {
+        try {
+            field.setAccessible(true);
+            Field modifiersField = Field.class.getDeclaredField("modifiers");
+            modifiersField.setAccessible(true);
+            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+            field.set(tk, sub);
+            modifiersField.setInt(field, field.getModifiers() & Modifier.FINAL);
+            modifiersField.setAccessible(false);
+            field.setAccessible(false);
+        } catch ( IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException e ) {
+            throw new DbcException("field " + field.getName() + " in AST class " + astClass.getSimpleName() + " could not be assigned to", e);
         }
     }
 }

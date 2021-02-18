@@ -9,9 +9,13 @@ import de.fhg.iais.roberta.typecheck.BlocklyType;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NepoComponent {
+    public static final String DEFAULT_FIELD_VALUE = "__this is no field, this is a value__";
+
     boolean required() default true;
 
     String fieldName() default "";
 
     BlocklyType fieldType() default BlocklyType.NOTHING;
+
+    String isFieldWithDefault() default DEFAULT_FIELD_VALUE;
 }

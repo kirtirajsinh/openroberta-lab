@@ -31,10 +31,6 @@ public class MbedStackMachineVisitorTest extends CalliopeAstTest {
 
     @Test
     public void mbedLightTest() throws Exception {
-        ImmutableClassToInstanceMap<IProjectBean.IBuilder<?>> map = ImmutableClassToInstanceMap.of();
-        map.put(UsedMethodBean.Builder.class, new UsedMethodBean.Builder());
-        map.put(UsedHardwareBean.Builder.class, new UsedHardwareBean.Builder());
-
         UnitTestHelper
             .checkWorkersWithConf(
                 testFactory,
