@@ -22,20 +22,26 @@ import java.util.List;
  * inconsistencies in it.
  */
 public abstract class AbstractValidatorAndCollectorWorker implements IWorker {
+
     @Override
     public final void execute(Project project) {
         Builder<IProjectBean.IBuilder<?>> mapBuilder = new ImmutableClassToInstanceMap.Builder<>();
         mapBuilder.put(UsedMethodBean.Builder.class, new UsedMethodBean.Builder());
-        mapBuilder.put(UsedHardwareBean.Builder.class, new UsedHardwareBean.Builder());
+        UsedHardwareBean.Builder usedHardwareBeanBuilder = new UsedHardwareBean.Builder();
+        mapBuilder.put(UsedHardwareBean.Builder.class, usedHardwareBeanBuilder);
         ImmutableClassToInstanceMap<IBuilder<?>> map = mapBuilder.build();
         CommonNepoValidatorAndCollectorVisitor visitor = this.getVisitor(project, mapBuilder.build());
         List<List<Phrase<Void>>> tree = project.getProgramAst().getTree();
         // workaround: because methods in the tree may use global variables before the main task is
         // reached within the tree, the variables may not exist yet and show up as not declared
         collectGlobalVariables(tree, visitor);
-        for ( Iterable<Phrase<Void>> phrases : tree ) {
+        for ( List<Phrase<Void>> phrases : tree ) {
             for ( Phrase<Void> phrase : phrases ) {
-                phrase.accept(visitor);
+                if ( phrase.getKind().getName().equals("MAIN_TASK") ) {
+                    usedHardwareBeanBuilder.setProgramEmpty(phrases.size() == 2);
+                } else {
+                    phrase.accept(visitor);
+                }
             }
         }
         project.addWorkerResult(map.get(UsedMethodBean.Builder.class).build());
